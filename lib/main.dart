@@ -1,18 +1,31 @@
-import 'package:centro/core/clasess/Keys.dart';
-import 'package:centro/core/clasess/app_storage.dart';
+import 'package:centro/core/classes/Keys.dart';
+import 'package:centro/core/classes/app_storage.dart';
+import 'package:centro/core/classes/firebase_api.dart';
 import 'package:centro/core/constants/app_colors.dart';
 import 'package:centro/core/constants/app_styles.dart';
 import 'package:centro/core/constants/end_point.dart';
 import 'package:centro/features/auth/ui/splash_screen.dart';
+import 'package:centro/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:centro/core/clasess/app_localization.dart';
+import 'package:centro/core/classes/app_localization.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
   await AppStorage.init();
+  await ScreenUtil.ensureScreenSize();
   runApp(const MyApp());
+}
+
+@pragma("vm:entry-point")
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
 }
 
 class MyApp extends StatefulWidget {
@@ -31,6 +44,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
 
   Locale? _locale;
+  final firebaseApi = FirebaseApi();
 
   void setLocale(Locale locale) {
     setState(() {
@@ -41,7 +55,13 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    /// load application language:
+    // AppStorage.removeData(key: kAccessToken);
+    // AppStorage.removeData(key: userID);
+    firebaseApi.requestNotificationPermission();
+    firebaseApi.init();
+    firebaseApi.getDeviceToken();
+    firebaseApi.isTokenRefresh();
+
     AppStorage.loadLanguage().then((languageCode) {
       setState(() {
         if(AppStorage.getData(key: headerLanguageKey) == null) {
@@ -78,7 +98,7 @@ class _MyAppState extends State<MyApp> {
               return supportedLocales.first;
             },
             debugShowCheckedModeBanner: false,
-            title: 'P2C',
+            title: "Planoo",
             theme: ThemeData(
               iconTheme: IconThemeData(color: AppColors.blackColor),
               textTheme: AppTheme.textTheme,

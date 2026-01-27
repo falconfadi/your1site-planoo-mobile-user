@@ -1,8 +1,8 @@
-import 'package:centro/core/constants/app_colors.dart';
-import 'package:centro/core/constants/app_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:centro/core/constants/app_colors.dart';
+import 'package:centro/core/constants/app_styles.dart';
 
 class IconTextWidget extends StatelessWidget {
 
@@ -11,24 +11,31 @@ class IconTextWidget extends StatelessWidget {
   final String text;
   final TextStyle? textStyle;
   final Color? iconColor;
+  final int maxline;
 
-  IconTextWidget({
+  const IconTextWidget({super.key,
     required this.icon,
     this.iconSize,
     required this.text,
     this.textStyle,
-    this.iconColor
+    this.iconColor,
+    this.maxline = 1
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        SvgPicture.asset(icon,width: iconSize,color: iconColor ?? AppColors.mediumGrayColor),
-        SizedBox(width: 10.w),
+        SvgPicture.asset(icon,width: iconSize,color: iconColor ?? AppColors.blackColor),
+        SizedBox(width: 5.w),
         Expanded(
-          child: Text(text,style: textStyle ??
-          AppTheme.titleLarge.copyWith(fontSize: 14,color: AppColors.darkGrayColor)),
+          child: Padding(
+            padding: EdgeInsets.only(top: 5.sp),
+            child: Text(text,
+                maxLines: maxline,
+                overflow: maxline <=1 ? TextOverflow.ellipsis : null,
+                style: textStyle ?? AppTheme.labelLarge),
+          ),
         )
       ],
     );

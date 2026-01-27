@@ -58,6 +58,12 @@ dependencies:
   responsive_grid: ^2.4.4
   smooth_page_indicator: ^1.2.1
   jwt_decoder: ^2.0.1
+  url_launcher: ^6.3.2
+  persistent_bottom_nav_bar: ^6.2.1
+  firebase_core: ^4.2.0
+  firebase_messaging: ^16.0.3
+  flutter_local_notifications: ^19.5.0
+  table_calendar: ^3.2.0
 
 dev_dependencies:
   flutter_test:
@@ -76,12 +82,8 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
 
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
     - assets/fonts/
@@ -89,30 +91,15 @@ flutter:
     - assets/images/
     - assets/l10n/
 
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/to/resolution-aware-images
 
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/to/asset-from-package
-
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
   fonts:
-    - family: Montserrat
+    - family: Tajawal
       fonts:
-        - asset: assets/fonts/Montserrat-Regular.otf
+        - asset: assets/fonts/Tajawal-Regular.ttf
           weight: 400
-        - asset: assets/fonts/Montserrat-Medium.otf
+        - asset: assets/fonts/Tajawal-Medium.ttf
           weight: 500
-        - asset: assets/fonts/Montserrat-SemiBold.otf
-          weight: 600
-        - asset: assets/fonts/Montserrat-Bold.otf
+        - asset: assets/fonts/Tajawal-Bold.ttf
           weight: 700
-        - asset: assets/fonts/Montserrat-ExtraBold.otf
+        - asset: assets/fonts/Tajawal-ExtraBold.ttf
           weight: 800
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/to/font-from-package

@@ -1,0 +1,7 @@
+<svg width="64px" height="64px" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <title>user--outline</title>
+    <path d="M6 30H26V25a7 7 0 0 0-7-7H13a7 7 0 0 0-7 7v5Z"
+        stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="16" cy="9" r="7"
+        stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

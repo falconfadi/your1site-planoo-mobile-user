@@ -1,7 +1,10 @@
+import 'package:centro/core/classes/Keys.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:centro/core/clasess/Keys.dart';
 
 class Navigation {
+
+  static bool get hasNavigationStack =>
+      Keys.navigatorKey.currentState?.canPop() ?? false;
 
   static Future? popThenPush(Widget page) async {
     Navigation.pop();
@@ -26,10 +29,6 @@ class Navigation {
       Keys.navigatorKey.currentContext!,
       CupertinoPageRoute(builder: (context) => page),
     );
-  }
-
-  static void popToRoot() {
-    Navigator.popUntil(Keys.navigatorKey.currentContext!, (route) => route.isFirst);
   }
 
   static Future? pushAndRemoveUntil(Widget page) async {

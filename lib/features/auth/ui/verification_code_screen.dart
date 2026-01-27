@@ -1,22 +1,27 @@
 import 'dart:async';
 import 'package:centro/core/constants/app_images.dart';
+import 'package:centro/core/ui/dialogs/dialogs.dart';
 import 'package:centro/core/utils/Navigation/Navigation.dart';
-import 'package:centro/features/auth/ui/reset_password_screen.dart';
+import 'package:centro/features/auth/data/auth_repository/auth_repository.dart';
+import 'package:centro/features/auth/data/usecase/resend_code_usecase.dart';
+import 'package:centro/features/auth/data/usecase/verify_code_usecase.dart';
+import 'package:centro/features/auth/ui/sign_in_screen.dart';
+import 'package:centro/features/auth/widget/footer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:centro/core/boilerplate/create_model/widgets/create_model.dart';
 import 'package:centro/core/constants/app_colors.dart';
 import 'package:centro/core/constants/app_styles.dart';
-import 'package:centro/core/clasess/app_localization.dart';
+import 'package:centro/core/classes/app_localization.dart';
 import 'package:centro/core/ui/widgets/custom_button.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pinput/pinput.dart';
 
 class VerificationCodeScreen extends StatefulWidget {
 
-  final String? phoneNumber;
-  bool fromSingUp;
+  final String phoneNumber;
+  final bool fromSingUp;
 
-  VerificationCodeScreen({required this.phoneNumber,this.fromSingUp = true,super.key});
+  const VerificationCodeScreen({required this.phoneNumber,this.fromSingUp = true,super.key});
 
   @override
   State<VerificationCodeScreen> createState() => _VerificationCodeScreenState();
@@ -27,7 +32,7 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
   static PinTheme defaultPinTheme = PinTheme(
     width: 50.w,
     height: 80.h,
-    textStyle: AppTheme.bodyMedium.copyWith(fontSize: 20),
+    textStyle: AppTheme.headlineMedium,
     decoration: BoxDecoration(
       color: AppColors.whiteColor,
       border: Border.all(color: AppColors.blackColor),
@@ -87,9 +92,9 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
 
   @override
   void dispose() {
-    super.dispose();
     codeController.dispose();
     timer!.cancel();
+    super.dispose();
   }
 
   @override
@@ -106,25 +111,25 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: widget.fromSingUp ? 30.h : 0 ),
-              Image.asset(logo,width: 200.w,height: 120.h),
-              SizedBox(height: 20.h),
+              SizedBox(height: widget.fromSingUp ? 30.h : 0),
+              Image.asset(logo,width: 1.sw,height: 90.h),
+              SizedBox(height: 40.h),
               RichText(
                 text: TextSpan(
                   text: "${AppLocalization.of(context).translate("we_sent_you_code")} ",
-                  style: AppTheme.labelLarge,
+                  style: AppTheme.labelLarge.copyWith(fontSize: 18.sp),
                   children: [
                     TextSpan(
                       text: " ",
                     ),
                     TextSpan(
-                      text: "${widget.phoneNumber} ",
-                      style: AppTheme.titleMedium.copyWith(fontSize: 16),
+                      text: widget.phoneNumber,
+                      style: AppTheme.titleLarge.copyWith(fontSize: 18.sp),
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 40.h),
+              SizedBox(height: 20.h),
               Pinput(
                 length: 5,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -136,55 +141,49 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
                 showCursor: true,
               ),
               SizedBox(height: 50.h),
-              CustomButton(
-                width: 1.sw,
-                backgroundColor: AppColors.primaryColor,
-                borderSideColor: AppColors.primaryColor,
-                borderRadius: 10.r,
-                buttonName: AppLocalization.of(context).translate("verify"),
-                function: () {
-                  if(!widget.fromSingUp) {
-                    Navigation.push(ResetPasswordScreen(phone: widget.phoneNumber!));
-                  } else {
-                    // Dialogs.showSnackBar(context: context, message: AppLocalization.of(context).translate("account_verified"));
-                    // Navigation.pushReplacement(LoginScreen());
-                  }
+              CreateModel(
+                withValidation: false,
+                onTap: () {},
+                onSuccess: (data) {
+                  Dialogs.showSnackBar(context: context, message: AppLocalization.of(context).translate("account_verified"));
+                  Navigation.pushAndRemoveUntil(SignInScreen());
                 },
+                useCaseCallBack: (model) {
+                  return VerifyCodeUseCase(AuthRepository()).call(
+                      params: VerifyCodeParams(
+                          phone: widget.phoneNumber, code: codeController.text));
+                },
+                child: CustomButton(
+                  width: 1.sw,
+                  backgroundColor: AppColors.primaryColor,
+                  borderSideColor: AppColors.primaryColor,
+                  borderRadius: 10.r,
+                  buttonName: AppLocalization.of(context).translate("verify"),
+                ),
               ),
-              SizedBox(height: 100.h),
+              SizedBox(height: 80.h),
               CreateModel(
                 withValidation: false,
                 onSuccess: (result) {
                   _resendCode();
                 },
                 useCaseCallBack: (data) {
-                  // if (enableResend) {
-                  //   codeController.clear();
-                  //   return  ResendCodeUseCase(AuthRepository())
-                  //       .call(params: ResendCodeParams(phone: widget.phoneNumber));
-                  // } else {
-                  //   return null;
-                  // }
+                  if (enableResend) {
+                    codeController.clear();
+                    return  ResendCodeUseCase(AuthRepository())
+                        .call(params: ResendCodeParams(phone: widget.phoneNumber));
+                  } else {
+                    return null;
+                  }
                 },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(AppLocalization.of(context).translate("did_not_receive_code"),
-                        style: AppTheme.titleMedium.copyWith(fontSize: 14)),
-                    SizedBox(width: 4.w),
-                    Text(!enableResend ?
-                    _seconds > 0 ? ' ($_seconds)' : ''
-                        : AppLocalization.of(context).translate("resend"),
-                        style: AppTheme.titleMedium.copyWith(
-                            fontSize: 14,
-                            color: AppColors.primaryColor,
-                            decoration: _seconds > 0 ? null : TextDecoration.underline,
-                            decorationColor: _seconds > 0 ? null : AppColors.primaryColor
-                    ))
-                  ],
+                child: FooterWidget(
+                  text: AppLocalization.of(context).translate("did_not_receive_code"),
+                  link: !enableResend ?
+                  _seconds > 0 ? ' ($_seconds)' : ''
+                      : AppLocalization.of(context).translate("resend"),
                 ),
               ),
-              SizedBox(height: 30.h),
+              SizedBox(height: 50.h),
             ],
           ),
         ),

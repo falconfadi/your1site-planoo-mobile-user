@@ -1,8 +1,16 @@
+import 'package:centro/core/boilerplate/create_model/widgets/create_model.dart';
+import 'package:centro/core/classes/firebase_api.dart';
 import 'package:centro/core/constants/app_images.dart';
+import 'package:centro/core/constants/app_styles.dart';
+import 'package:centro/core/ui/dialogs/dialogs.dart';
+import 'package:centro/core/utils/Navigation/Navigation.dart';
 import 'package:centro/core/utils/validators/match_validator.dart';
+import 'package:centro/features/auth/data/auth_repository/auth_repository.dart';
+import 'package:centro/features/auth/data/usecase/reset_password_usecase.dart';
+import 'package:centro/features/auth/ui/sign_in_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:centro/core/constants/app_colors.dart';
-import 'package:centro/core/clasess/app_localization.dart';
+import 'package:centro/core/classes/app_localization.dart';
 import 'package:centro/core/ui/widgets/custom_button.dart';
 import 'package:centro/core/utils/form_utils/form_state_mixin.dart';
 import 'package:centro/core/ui/widgets/custom_text_field.dart';
@@ -11,18 +19,48 @@ import 'package:centro/core/utils/validators/base_validator.dart';
 import 'package:centro/core/utils/validators/password_validator.dart';
 import 'package:centro/core/utils/validators/required_validator.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pinput/pinput.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
 
-  String phone;
+  final String phone;
 
-  ResetPasswordScreen({required this.phone,super.key});
+  const ResetPasswordScreen({required this.phone,super.key});
 
   @override
   State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
 }
 
 class _ResetPasswordScreenState extends State<ResetPasswordScreen>  with FormStateMinxin {
+
+  late TextEditingController codeController;
+
+  static PinTheme defaultPinTheme = PinTheme(
+    width: 50.w,
+    height: 80.h,
+    textStyle: AppTheme.headlineMedium,
+    decoration: BoxDecoration(
+      color: AppColors.whiteColor,
+      border: Border.all(color: AppColors.blackColor),
+      borderRadius: BorderRadius.circular(8.r),
+    ),
+  );
+  static PinTheme focusedPinTheme = defaultPinTheme.copyDecorationWith(
+    color: AppColors.whiteColor,
+    border: Border.all(color: AppColors.blackColor),
+    borderRadius: BorderRadius.circular(8.r),
+  );
+  static PinTheme submittedPinTheme = defaultPinTheme.copyWith(
+    decoration: defaultPinTheme.decoration?.copyWith(
+      color: AppColors.whiteColor,
+    ),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    codeController = TextEditingController();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +77,18 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>  with FormSta
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.asset(logo,width: 200.w,height: 120.h),
+                Image.asset(logo,width: 1.sw,height: 90.h),
+                SizedBox(height: 40.h),
+                Pinput(
+                  length: 5,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  controller: codeController,
+                  defaultPinTheme: defaultPinTheme,
+                  focusedPinTheme: focusedPinTheme,
+                  submittedPinTheme: submittedPinTheme,
+                  pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
+                  showCursor: true,
+                ),
                 SizedBox(height: 30.h),
                 CustomTextField(
                   autoFocus: false,
@@ -76,12 +125,32 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>  with FormSta
                   labelText: AppLocalization.of(context).translate("confirm_password"),
                 ),
                 SizedBox(height: 50.h),
-                CustomButton(
-                  width: 1.sw,
-                  backgroundColor: AppColors.primaryColor,
-                  borderSideColor: AppColors.primaryColor,
-                  borderRadius: 10.r,
-                  buttonName: AppLocalization.of(context).translate("reset"),
+                CreateModel(
+                  onSuccess: (result) async {
+                    Dialogs.showSnackBar(context: context, message: AppLocalization.of(context).translate("password_reseted"));
+                    Navigation.pushAndRemoveUntil(SignInScreen());
+                  },
+                  withValidation: true,
+                  onTap: () {
+                    return form.validate();
+                  },
+                  useCaseCallBack: (model) {
+                    return ResetPasswordUseCase(AuthRepository()).call(
+                        params: ResetPasswordParams(
+                            phone: widget.phone,
+                            password: form.controllers[0].text,
+                            confirmationPassword: form.controllers[1].text,
+                            code: codeController.text,
+                            firebaseToken: FirebaseApi.deviceToken.toString()
+                        ));
+                  },
+                  child: CustomButton(
+                    width: 1.sw,
+                    backgroundColor: AppColors.primaryColor,
+                    borderSideColor: AppColors.primaryColor,
+                    borderRadius: 10.r,
+                    buttonName: AppLocalization.of(context).translate("reset"),
+                  ),
                 ),
                 SizedBox(height: 30.h),
               ],

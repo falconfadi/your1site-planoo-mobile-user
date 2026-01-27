@@ -1,4 +1,5 @@
 import 'package:centro/core/ui/widgets/general_error_widget.dart';
+import 'package:centro/core/ui/widgets/loading.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -7,11 +8,10 @@ import '../../../ui/widgets/no_data_widget.dart';
 import '../cubits/pagination_cubit.dart';
 
 typedef CreatedCallback = void Function(PaginationCubit cubit);
-
 typedef ListBuilder<Model> = Widget Function(List<Model> list);
 
 class PaginationList<Model> extends StatefulWidget {
-  final RepositoryCallBack? repositoryCallBack;
+  final RepositoryCallBack repositoryCallBack;
   final ListBuilder<Model>? listBuilder;
   final CreatedCallback? onCubitCreated;
   final bool? withPagination;
@@ -23,61 +23,62 @@ class PaginationList<Model> extends StatefulWidget {
   final Widget? noDataWidget;
   final Widget? loadingWidget;
 
-  const PaginationList(
-      {super.key,
-        this.noDataWidget,
-        this.errorWidget,
-        this.loadingWidget,
-        this.scrollDirection = Axis.vertical,
-        this.repositoryCallBack,
-        this.listBuilder,
-        this.withPagination = false,
-        this.onCubitCreated,
-        this.initialParam,
-        this.withEmptyWidget = true,
-        this.onRefresh});
+  const PaginationList({super.key,
+    this.noDataWidget,
+    this.errorWidget,
+    this.loadingWidget,
+    this.scrollDirection = Axis.vertical,
+    required this.repositoryCallBack,
+    this.listBuilder,
+    this.withPagination = false,
+    this.onCubitCreated,
+    this.initialParam,
+    this.withEmptyWidget = true,
+    this.onRefresh
+  });
 
   @override
-  _PaginationListState<Model> createState() => _PaginationListState<Model>();
+  State<PaginationList<Model>> createState() => _PaginationListState<Model>();
 }
 
 class _PaginationListState<Model> extends State<PaginationList<Model>> {
+
   final RefreshController _refreshController = RefreshController();
-  PaginationCubit<Model>? cubit;
+  late final PaginationCubit<Model> cubit;
 
   @override
   void initState() {
-    cubit = PaginationCubit<Model>(widget.repositoryCallBack!);
-    if (widget.onCubitCreated != null) {
-      widget.onCubitCreated!(cubit!);
-    }
-    cubit?.getList();
     super.initState();
+    cubit = PaginationCubit<Model>(widget.repositoryCallBack);
+    widget.onCubitCreated?.call(cubit);
+    cubit.getList();
+  }
+
+  @override
+  void dispose() {
+    _refreshController.dispose();
+    cubit.close();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return _buildConsumer();
-  }
-
-  _buildConsumer() {
     return BlocConsumer<PaginationCubit<Model>, PaginationState>(
         bloc: cubit,
         listener: (context, state) {
-          if (state is Error) {
-          } else if (state is GetListSuccessfully) {
-            if (widget.onRefresh != null) widget.onRefresh!();
-            _refreshController.refreshCompleted();
-            if (state.noMoreData) {
-              _refreshController.loadNoData();
-            } else {
-              _refreshController.loadComplete();
+          if (state is GetListSuccessfully) {
+            widget.onRefresh?.call();
+            if (_refreshController.isRefresh) _refreshController.refreshCompleted();
+            if (_refreshController.isLoading) {
+              state.noMoreData
+                  ? _refreshController.loadNoData()
+                  : _refreshController.loadComplete();
             }
           }
         },
         builder: (context, state) {
           if (state is Loading) {
-            return widget.loadingWidget ?? const Center(child: CupertinoActivityIndicator(radius: 15));
+            return widget.loadingWidget ?? const Center(child: LoadingIndicator());
           } else if (state is GetListSuccessfully) {
             return smartRefresher(state.list as List<Model>);
           } else if (state is Error) {
@@ -85,16 +86,17 @@ class _PaginationListState<Model> extends State<PaginationList<Model>> {
                 GeneralErrorWidget(
                   message: state.message,
                   onTap: () {
-                    cubit?.getList();
+                    cubit.getList();
                   },
                 );
           } else {
-            return Container();
+            return const SizedBox.shrink();
           }
-        });
+        }
+    );
   }
 
-  smartRefresher(List<Model> list) {
+  SmartRefresher smartRefresher(List<Model> list) {
     Widget child;
     if (list.isEmpty && widget.withEmptyWidget) {
       child = widget.noDataWidget ?? const NoDataWidget();
@@ -109,10 +111,10 @@ class _PaginationListState<Model> extends State<PaginationList<Model>> {
       header: const MaterialClassicHeader(),
       controller: _refreshController,
       onRefresh: () async {
-        cubit?.getList();
+        cubit.getList();
       },
       onLoading: () async {
-        cubit?.getList(loadMore: true);
+        cubit.getList(loadMore: true);
       },
       footer: customFooter,
       child: child,

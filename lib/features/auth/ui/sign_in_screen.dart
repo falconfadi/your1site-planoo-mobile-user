@@ -1,14 +1,24 @@
+import 'package:centro/core/boilerplate/create_model/widgets/create_model.dart';
+import 'package:centro/core/classes/app_storage.dart';
+import 'package:centro/core/classes/firebase_api.dart';
 import 'package:centro/core/constants/app_images.dart';
+import 'package:centro/core/constants/end_point.dart';
+import 'package:centro/core/ui/dialogs/dialogs.dart';
 import 'package:centro/core/utils/Navigation/Navigation.dart';
+import 'package:centro/core/utils/validators/phone_number_validation.dart';
+import 'package:centro/features/auth/data/auth_repository/auth_repository.dart';
+import 'package:centro/features/auth/data/model/sign_in_model.dart';
+import 'package:centro/features/auth/data/usecase/sign_in_usecase.dart';
 import 'package:centro/features/auth/ui/sign_up_screen.dart';
-import 'package:centro/features/auth/widgets/condition_check_box.dart';
-import 'package:centro/features/auth/widgets/forget_password_sheet.dart';
+import 'package:centro/features/auth/ui/verification_code_screen.dart';
+import 'package:centro/features/auth/widget/footer_widget.dart';
+import 'package:centro/features/auth/widget/forget_password_sheet.dart';
 import 'package:centro/features/nav_bar/ui/nav_bar_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:centro/core/constants/app_colors.dart';
 import 'package:centro/core/constants/app_styles.dart';
-import 'package:centro/core/clasess/app_localization.dart';
-import 'package:centro/core/ui/widgets/coustom_sheet.dart';
+import 'package:centro/core/classes/app_localization.dart';
+import 'package:centro/core/ui/widgets/custom_sheet.dart';
 import 'package:centro/core/ui/widgets/custom_button.dart';
 import 'package:centro/core/utils/form_utils/form_state_mixin.dart';
 import 'package:centro/core/ui/widgets/custom_text_field.dart';
@@ -17,16 +27,26 @@ import 'package:centro/core/utils/validators/base_validator.dart';
 import 'package:centro/core/utils/validators/password_validator.dart';
 import 'package:centro/core/utils/validators/required_validator.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class SignInScreen extends StatefulWidget {
 
-  SignInScreen({super.key});
+  const SignInScreen({super.key});
 
   @override
   State<SignInScreen> createState() => _SignInScreenState();
 }
 
 class _SignInScreenState extends State<SignInScreen>  with FormStateMinxin {
+
+  Future<void> saveLoginTokens(String token) async {
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+    int expirationTimestamp = decodedToken['exp']; // in seconds since epoch
+    DateTime expirationDate = DateTime.fromMillisecondsSinceEpoch(expirationTimestamp * 1000);
+
+    await AppStorage.saveData(key: kAccessToken, value: token);
+    await AppStorage.saveData(key: kAccessTokenExpirationDate, value: expirationDate.toIso8601String());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,22 +62,20 @@ class _SignInScreenState extends State<SignInScreen>  with FormStateMinxin {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(height: 30.h),
-                Image.asset(logo,width: 200.w,height: 120.h),
-                SizedBox(height: 15.h),
+                Image.asset(logo,width: 1.sw,height: 90.h),
                 Text(AppLocalization.of(context).translate("sign_in").toUpperCase(),
-                    style: AppTheme.titleMedium.copyWith(fontSize: 25)),
-                SizedBox(height: 30.h),
+                    style: AppTheme.headlineSmall.copyWith(fontSize: 26.sp)),
+                SizedBox(height: 40.h),
                 CustomTextField(
                   autoFocus: false,
                   autoValidateMode: AutovalidateMode.onUserInteraction,
                   keyboardType: TextInputType.phone,
-
                   prefixIcon: Icons.phone,
                   validator: (value) {
                     return BaseValidator.validateValue(
                       context,
                       value!,
-                      [RequiredValidator()],
+                      [RequiredValidator(),PhoneNumberValidator(value: value)],
                     );
                   },
                   focusNode: form.nodes[0],
@@ -91,7 +109,7 @@ class _SignInScreenState extends State<SignInScreen>  with FormStateMinxin {
                         CustomSheet.show(
                             isDismissible: true,
                             header: Text(AppLocalization.of(context).translate("forget_password"),
-                              style: AppTheme.bodyMedium,
+                              style: AppTheme.titleLarge.copyWith(fontSize: 18.sp),
                             ),
                             padding: 30.w,
                             context: context,
@@ -99,40 +117,46 @@ class _SignInScreenState extends State<SignInScreen>  with FormStateMinxin {
                         );
                       },
                       child: Text("${AppLocalization.of(context).translate("forget_password")}?",
-                          style: AppTheme.labelMedium.copyWith(color: AppColors.primaryColor)
+                          style: AppTheme.bodyLarge.copyWith(color: AppColors.primaryColor)
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 10.h),
-                ConditionCheckBox(),
                 SizedBox(height: 50.h),
-                Row(
-                  children: [
-                    Expanded(
-                      child: CustomButton(
-                        width: 1.sw,
-                        backgroundColor: Colors.transparent,
-                        borderSideColor: Colors.transparent,
-                        borderRadius: 10.r,
-                        textStyle: AppTheme.titleSmall.copyWith(color: AppColors.primaryColor),
-                        buttonName: AppLocalization.of(context).translate("sign_up"),
-                        function: () => Navigation.pushReplacement(SignUpScreen()),
-                      ),
-                    ),
-                    SizedBox(width: 15.w),
-                    Expanded(
-                      child: CustomButton(
-                        width: 1.sw,
-                        backgroundColor: AppColors.primaryColor,
-                        borderRadius: 10.r,
-                        buttonName: AppLocalization.of(context).translate("sign_in"),
-                        function: () {
-                          // todo change later
-                          Navigation.pushReplacement(NavBarScreen(pageIndex: 0));
-                        }),
-                      ),
-                  ],
+                CreateModel(
+                  withValidation: true,
+                  onSuccess: (SignInModel model) async {
+                    await saveLoginTokens(model.token!);
+                    AppStorage.saveData(key: userID, value: model.customer!.id);
+                    Navigation.pushAndRemoveUntil(NavBarScreen(pageIndex: 0));
+                  },
+                  onTap: () {
+                    return form.validate();
+                  },
+                  onError: (String errorMessage) {
+                    if (errorMessage.toLowerCase().contains("unverified account")) {
+                      Navigation.push(VerificationCodeScreen(phoneNumber: form.controllers[0].text,fromSingUp: false));
+                    } else {
+                      Dialogs.showQuestion(context, title: errorMessage);
+                    }
+                  },
+                  useCaseCallBack: (model) => SignInUseCase(AuthRepository()).call(
+                      params: SignInParams(
+                        phone: form.controllers[0].text,
+                        password: form.controllers[1].text,
+                        firebaseToken: FirebaseApi.deviceToken.toString()
+                      )),
+                  child: CustomButton(
+                    backgroundColor: AppColors.primaryColor,
+                    borderRadius: 10.r,
+                    buttonName: AppLocalization.of(context).translate("sign_in"),
+                  ),
+                ),
+                SizedBox(height: 80.h),
+                FooterWidget(
+                    text: "${AppLocalization.of(context).translate("do_not_have_account")}?",
+                    link: AppLocalization.of(context).translate("sign_up"),
+                    linkTap: () => Navigation.pushReplacement(SignUpScreen())
                 ),
                 SizedBox(height: 50.h),
               ],

@@ -1,7 +1,8 @@
-import 'package:centro/core/clasess/app_localization.dart';
+import 'package:centro/core/classes/app_localization.dart';
 import 'package:centro/core/constants/app_colors.dart';
 import 'package:centro/core/constants/app_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ExpandableTextWidget extends StatefulWidget {
 
@@ -23,8 +24,6 @@ class _ExpandableTextWidgetState extends State<ExpandableTextWidget> {
   bool _expanded = false;
   bool _isOverflowing = false;
 
-  final _textKey = GlobalKey();
-
   @override
   void initState() {
     super.initState();
@@ -32,14 +31,23 @@ class _ExpandableTextWidgetState extends State<ExpandableTextWidget> {
   }
 
   void _checkOverflow() {
-    final renderBox = _textKey.currentContext?.findRenderObject() as RenderBox?;
-    if (renderBox != null) {
-      final lines = renderBox.size.height;
-      if (lines > 3) {
-        setState(() {
-          _isOverflowing = true;
-        });
-      }
+    final textSpan = TextSpan(
+      text: widget.text,
+      style: widget.style ?? AppTheme.titleMedium,
+    );
+
+    final textPainter = TextPainter(
+      text: textSpan,
+      maxLines: 3,
+      textDirection: TextDirection.ltr,
+    );
+
+    textPainter.layout(
+      maxWidth: context.size?.width ?? double.infinity,
+    );
+
+    if (textPainter.didExceedMaxLines) {
+      setState(() => _isOverflowing = true);
     }
   }
 
@@ -52,8 +60,7 @@ class _ExpandableTextWidgetState extends State<ExpandableTextWidget> {
           onTap: _isOverflowing ? () => setState(() => _expanded = !_expanded) : null,
           child: Text(
             widget.text,
-            key: _textKey,
-            style: widget.style,
+            style: widget.style ?? AppTheme.titleMedium,
             overflow: TextOverflow.fade,
             maxLines: _expanded ? null : 3,
           ),
@@ -61,9 +68,15 @@ class _ExpandableTextWidgetState extends State<ExpandableTextWidget> {
         if (_isOverflowing)
           GestureDetector(
             onTap: () => setState(() => _expanded = !_expanded),
-            child: Text(
-              _expanded ? "" : AppLocalization.of(context).translate("see_all"),
-              style: AppTheme.labelMedium.copyWith(color: AppColors.primaryColor)
+            child: _expanded ? const SizedBox.shrink() : Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                    AppLocalization.of(context).translate("read_more"),
+                    style: AppTheme.titleLarge.copyWith(color: AppColors.redColor)
+                ),
+                Icon(Icons.keyboard_arrow_down_outlined,size: 18.sp,color: AppColors.redColor)
+              ],
             ),
           )
       ],

@@ -5,18 +5,19 @@ import '../../constants/app_colors.dart';
 import '../../constants/app_styles.dart';
 
 class CustomButton extends StatelessWidget {
-  double? height;
-  double? width;
-  String? buttonName;
-  TextStyle? textStyle;
-  String? icon;
-  Color? iconColor;
-  Color? backgroundColor;
-  Color? borderSideColor;
-  double? borderRadius;
-  VoidCallback? function;
+  final double? height;
+  final double? width;
+  final String? buttonName;
+  final TextStyle? textStyle;
+  final String? icon;
+  final Color? iconColor;
+  final Color? backgroundColor;
+  final Color? borderSideColor;
+  final double? borderRadius;
+  final VoidCallback? function;
+  final EdgeInsets? padding;
 
-  CustomButton({super.key,
+  const CustomButton({super.key,
     this.height,
     this.width,
     this.buttonName,
@@ -27,23 +28,21 @@ class CustomButton extends StatelessWidget {
     this.borderSideColor,
     required this.borderRadius,
     this.function,
+    this.padding
   });
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      style: ButtonStyle(
-        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.all(4)),
-        fixedSize: MaterialStateProperty.all<Size>(
-          Size(width ?? double.infinity, height ?? 60.h),
-        ),
-        backgroundColor: MaterialStateProperty.all<Color>(backgroundColor!),
-        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-          RoundedRectangleBorder(
+      style: TextButton.styleFrom(
+          padding: padding ?? EdgeInsets.only(left: 20.w,right: 20.w,top: 10.h,bottom: 5.h),
+          minimumSize: Size(width ?? double.infinity, height ?? 60.h),
+          backgroundColor: backgroundColor!,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius!),
             side: BorderSide(color: borderSideColor ?? Colors.transparent, width: 0.5),
           ),
-        ),
       ),
       onPressed: function,
       child: Row(
@@ -51,12 +50,15 @@ class CustomButton extends StatelessWidget {
         children: [
           if (icon != null)
             SvgPicture.asset(icon!, color: iconColor ?? AppColors.primaryColor),
-          SizedBox(width: icon != null ? 5.w : 0),
-          Text(
-            buttonName ?? "",
-            textAlign: TextAlign.center,
-            style: textStyle ?? AppTheme.titleSmall.copyWith(color: AppColors.whiteColor),
-          ),
+          SizedBox(width: (buttonName != null) ? 5.w : 0),
+          buttonName == null ? Center() :
+            Expanded(
+              child: Text(
+                buttonName!,
+                textAlign: TextAlign.center,
+                style: textStyle ?? AppTheme.headlineSmall.copyWith(color: AppColors.whiteColor),
+              ),
+            ),
         ],
       )
     );
