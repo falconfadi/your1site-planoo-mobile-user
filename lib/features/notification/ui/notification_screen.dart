@@ -1,4 +1,5 @@
 import 'package:centro/core/boilerplate/get_model/cubits/get_model_cubit.dart';
+import 'package:centro/core/classes/app_storage.dart';
 import 'package:centro/core/ui/shared_widgets/custom_header.dart';
 import 'package:centro/features/appointment/ui/appointment_details_screen.dart';
 import 'package:flutter/material.dart';
@@ -141,7 +142,7 @@ class _NotificationScreenState extends State<NotificationScreen> with SingleTick
                                         onTap: () {},
                                       ),
                                     ],
-                                    offset: const Offset(15,35),
+                                    offset: Offset(AppStorage.languageCode == "ar" ? -15 : 15,30),
                                     onSelected: (value) {},
                                   ),
                                 )

@@ -70,7 +70,7 @@ class _SignUpScreenState extends State<SignUpScreen>  with FormStateMinxin {
                     autoFocus: false,
                     autoValidateMode: AutovalidateMode.onUserInteraction,
                     keyboardType: TextInputType.phone,
-                    prefixIcon: Icons.phone,
+                    prefixIcon: Icons.phone_android_outlined,
                     validator: (value) {
                       return BaseValidator.validateValue(
                         context,
@@ -129,7 +129,8 @@ class _SignUpScreenState extends State<SignUpScreen>  with FormStateMinxin {
                   ),
                   SizedBox(height: 80.h),
                   FooterWidget(
-                      text: "${AppLocalization.of(context).translate("have_an_account")}?",
+                      text: AppLocalization.of(context).translate("have_an_account") +
+                          AppLocalization.of(context).translate("?"),
                       link: AppLocalization.of(context).translate("sign_in"),
                       linkTap: () => Navigation.pushReplacement(SignInScreen())),
                   SizedBox(height: 50.h),
