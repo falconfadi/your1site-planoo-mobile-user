@@ -10,6 +10,7 @@ import 'package:centro/core/constants/app_styles.dart';
 import 'package:centro/core/constants/end_point.dart';
 import 'package:centro/core/ui/dialogs/dialogs.dart';
 import 'package:centro/core/ui/shared_widgets/custom_header.dart';
+import 'package:centro/core/ui/shared_widgets/expandable_text_widget.dart';
 import 'package:centro/core/ui/widgets/custom_button.dart';
 import 'package:centro/core/ui/widgets/custom_sheet.dart';
 import 'package:centro/core/utils/Navigation/Navigation.dart';
@@ -44,6 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   File? photo;
   GetModelCubit<SignInModel>? _customerCubit;
+  bool clearToken = false;
 
   @override
   Widget build(BuildContext context) {
@@ -173,42 +175,76 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   backgroundColor: AppColors.primaryColor,
                   borderRadius: 10.r,
                   buttonName: AppLocalization.of(context).translate("log_out"),
-                  function: () =>  Dialogs.showQuestion(
-                    context,
-                    title: "",
-                    content: Column(
-                      children: [
-                        ListTile(
-                          title: Text(AppLocalization.of(context).translate("are_you_sure") +
-                              AppLocalization.of(context).translate("?"),
-                            textAlign: TextAlign.center,
-                            style: AppTheme.headlineSmall.copyWith(color: AppColors.mediumGrayColor),
-                          ),
-                        ),
-                      ],
-                    ),
-                    btnOk: CreateModel(
-                      withValidation: false,
-                      onTap: () {},
-                      onSuccess: (data) {
-                        AppStorage.removeData(key: kAccessToken);
-                        AppStorage.removeData(key: userID);
-                        Navigation.pushAndRemoveUntil(SignInScreen());
-                      },
-                      useCaseCallBack: (model) {
-                        return LogoutUseCase(AuthRepository()).call(
-                            params: LogoutParams());
-                      },
-                      child: CustomButton(
-                        height: 40.h,
-                        width: 1.sw,
-                        backgroundColor: AppColors.redColor,
-                        borderRadius: 8.r,
-                        buttonName: AppLocalization.of(context).translate("ok"),
-                        textStyle: AppTheme.headlineSmall.copyWith(color: AppColors.whiteColor),
+                  function: () {
+                    clearToken = false;
+                    Dialogs.showQuestion(
+                      context,
+                      title: "",
+                      content: StatefulBuilder(
+                          builder: (context, setStateDialog) {
+                            return Column(
+                              children: [
+                                ListTile(
+                                    title: Text(AppLocalization.of(context).translate("are_you_sure") +
+                                        AppLocalization.of(context).translate("?"),
+                                      textAlign: TextAlign.center,
+                                      style: AppTheme.headlineSmall.copyWith(color: AppColors.mediumGrayColor),
+                                    ),
+                                    subtitle: Padding(
+                                      padding: EdgeInsets.only(top: 10.h),
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Checkbox(
+                                            value: clearToken,
+                                            activeColor: AppColors.redColor,
+                                            visualDensity: VisualDensity.compact,
+                                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                            onChanged: (value) {
+                                              setStateDialog(() {
+                                                clearToken = !clearToken;
+                                              });
+                                            },
+                                          ),
+                                          Expanded(
+                                              child: ExpandableTextWidget(
+                                                text: AppLocalization.of(context).translate("logout_clear_token_warning"),
+                                                style: AppTheme.bodyMedium,
+                                              )
+                                          )
+                                        ],
+                                      ),
+                                    )
+                                )
+                              ],
+                            );
+                          }
                       ),
-                    ),
-                  ),
+                      btnOk: CreateModel(
+                        withValidation: false,
+                        onTap: () {},
+                        onSuccess: (data) {
+                          AppStorage.removeData(key: kAccessToken);
+                          AppStorage.removeData(key: userID);
+                          Navigation.pushAndRemoveUntil(SignInScreen());
+                        },
+                        useCaseCallBack: (model) {
+                          return LogoutUseCase(AuthRepository()).call(
+                              params: LogoutParams(
+                                  clearToken: clearToken
+                              ));
+                        },
+                        child: CustomButton(
+                          height: 40.h,
+                          width: 1.sw,
+                          backgroundColor: AppColors.redColor,
+                          borderRadius: 8.r,
+                          buttonName: AppLocalization.of(context).translate("ok"),
+                          textStyle: AppTheme.headlineSmall.copyWith(color: AppColors.whiteColor),
+                        ),
+                      ),
+                    );
+                  }
                 ),
                 SizedBox(height: 30.h),
               ],
