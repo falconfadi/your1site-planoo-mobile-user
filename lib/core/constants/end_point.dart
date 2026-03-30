@@ -34,6 +34,7 @@ const String deleteNotificationUrl = "notification/delete";
 const String clearNotificationsUrl = "notification/clear";
 /// appointment
 const String allAppointmentsUrl = "appointment/all";
+const String acceptedAppointmentsUrl = "appointment/accepted";
 const String getAppointmentDetailsUrl = "appointment/find";
 const String checkActivityAppointmentUrl = "appointment/check";
 const String createActivityAppointmentUrl = "appointment/create";

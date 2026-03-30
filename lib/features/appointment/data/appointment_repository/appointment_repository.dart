@@ -3,7 +3,9 @@ import 'package:centro/core/data_source/remote_data_source.dart';
 import 'package:centro/core/http/http_method.dart';
 import 'package:centro/core/repository/core_repository.dart';
 import 'package:centro/core/results/result.dart';
+import 'package:centro/features/appointment/data/model/accepted_appointments_model.dart';
 import 'package:centro/features/appointment/data/model/all_appointments_model.dart';
+import 'package:centro/features/appointment/data/usecase/accepted_appointments_usecase.dart';
 import 'package:centro/features/appointment/data/usecase/appointment_details_usecase.dart';
 import 'package:centro/features/appointment/data/usecase/cancel_activity_appointment_usecase.dart';
 import 'package:centro/features/appointment/data/usecase/all_appointments_usecase.dart';
@@ -41,6 +43,16 @@ class AppointmentRepository extends CoreRepository {
       method: HttpMethod.POST,
     );
     return noModelCall(result: result);
+  }
+
+  Future<Result<AcceptedAppointmentsModel>> getAcceptedAppointments({required AcceptedAppointmentsParams params}) async {
+    final result = await RemoteDataSource.request(
+        withAuthentication: true,
+        url: "$acceptedAppointmentsUrl/${params.ownerType}",
+        method: HttpMethod.POST,
+        responseStr: 'AcceptedAppointmentsResponse',
+        converter: (json) => AcceptedAppointmentsResponse.fromJson(json));
+    return call(result: result);
   }
 
 }

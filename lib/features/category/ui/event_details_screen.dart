@@ -1,6 +1,7 @@
 import 'package:centro/core/boilerplate/create_model/widgets/create_model.dart';
 import 'package:centro/core/boilerplate/get_model/cubits/get_model_cubit.dart';
 import 'package:centro/core/boilerplate/get_model/widgets/get_model.dart';
+import 'package:centro/core/classes/Keys.dart';
 import 'package:centro/core/classes/app_localization.dart';
 import 'package:centro/core/constants/app_colors.dart';
 import 'package:centro/core/constants/app_images.dart';
@@ -50,6 +51,25 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>  with TickerPro
   GetModelCubit<ReviewModel>? reviewCubit;
   EventDetailsModel? event;
   bool isExpanded = false;
+  ScrollController scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scrollController.hasClients) {
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent + 150,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +90,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>  with TickerPro
           });
         },
         modelBuilder: (model) => SingleChildScrollView(
+          controller: scrollController,
           child: Column(
             children: [
               Stack(
@@ -288,6 +309,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>  with TickerPro
                     ),
                     SizedBox(height: 15.h),
                     Card(
+                      key: Keys.scrollKey,
                       color: AppColors.whiteColor,
                       elevation: 3,
                       shadowColor: AppColors.gray2Color,
@@ -302,6 +324,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>  with TickerPro
                                 setState(() {
                                   isExpanded = !isExpanded;
                                 });
+                                if(isExpanded) {
+                                  Future.delayed(const Duration(milliseconds: 300), () {
+                                    _scrollToBottom();
+                                  });
+                                }
                               },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -361,6 +388,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>  with TickerPro
                               ) : const SizedBox.shrink(),
 
                             ),
+
                           ],
                         ),
                       ),

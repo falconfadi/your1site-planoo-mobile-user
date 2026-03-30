@@ -6,9 +6,11 @@ import 'package:table_calendar/table_calendar.dart';
 
 Widget calenderDatePickerWidget({
   required DateTime selectedDate,
+  required DateTime focusedDay,
   required ValueChanged<DateTime> onDateChanged,
   required BuildContext context,
   Set<int>? allowedWeekdays,
+  Map<DateTime, List<dynamic>>? eventsMap,
   bool enabled = true,
 }) {
   return IgnorePointer(
@@ -21,7 +23,25 @@ Widget calenderDatePickerWidget({
           borderRadius: BorderRadius.circular(10.r),
         ),
         child: TableCalendar(
+          eventLoader: (day) {
+            final normalizedDay = DateTime(day.year, day.month, day.day);
+            return eventsMap?[normalizedDay] ?? [];
+          },
           calendarBuilders: CalendarBuilders(
+            markerBuilder: (context, day, events) {
+              if (events.isEmpty) return SizedBox();
+              return Positioned(
+                bottom: 8,
+                child: Container(
+                  width: 10,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: AppColors.redColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              );
+            },
             defaultBuilder: (context, day, focusedDay) {
               if (isSameDay(day, DateTime.now())) {
                 return _todayCell(day, isDisabled: false);
@@ -37,7 +57,7 @@ Widget calenderDatePickerWidget({
           ),
           firstDay: DateTime(1900),
           lastDay: DateTime(2100),
-          focusedDay: DateTime.now(),
+          focusedDay: focusedDay,
           selectedDayPredicate: (day) =>
               isSameDay(day, selectedDate),
 

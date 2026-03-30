@@ -24,7 +24,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
 
   int selectedTab = 0;
   late PaginationCubit cubit;
-  DateTime selectedDate = DateTime.now();
+  DateTime? selectedDate;
+  DateTime focusedDay = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -53,11 +54,13 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                     borderRadius: BorderRadius.circular(15.r)
                 ),
                 child: calenderDatePickerWidget(
-                  selectedDate: selectedDate,
+                  selectedDate: selectedDate ?? DateTime.now(),
+                  focusedDay: focusedDay,
                   context: context,
                   onDateChanged: (date) {
                     setState(() {
                       selectedDate = date;
+                      focusedDay = date;
                     });
                   },
                 ),
