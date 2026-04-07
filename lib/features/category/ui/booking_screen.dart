@@ -101,6 +101,9 @@ class _BookingScreenState extends State<BookingScreen> with FormStateMinxin {
                 return AcceptedAppointmentsUseCase(AppointmentRepository()).call(
                     params: AcceptedAppointmentsParams(ownerType: "activity"));
               },
+              onError: (errorMessage) {
+                return AcceptedAppointmentsModel(appointmentsList: []);
+              },
               onSuccess: (result) {
                 for (var appointment in result.appointmentsList ?? []) {
                   final date = DateTime.parse(appointment.date!);
