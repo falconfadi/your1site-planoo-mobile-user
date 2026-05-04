@@ -103,6 +103,7 @@
   "active": "Active",
   "unactive": "Unactive",
   "event_duration": "Event duration",
+  "admission_fee": "Admission fee",
   "withdrawal_fee": "Withdrawal fee",
   "start_date": "Start date",
   "end_date": "End date",

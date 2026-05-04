@@ -62,6 +62,10 @@ class _PickImageSheetState extends State<PickImageSheet> {
       useCaseCallBack: (data) async {
         image = await PickImage.selectImage(imageSource: source);
 
+        if (image == null) {
+          return Future.value();
+        }
+
         return UploadProfileImageUseCase(ProfileRepository()).call(
           params: UploadProfileImageParams(file: image!),
         );

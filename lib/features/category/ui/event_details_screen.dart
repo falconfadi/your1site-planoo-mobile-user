@@ -165,7 +165,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>  with TickerPro
                         Expanded(
                           child: InkWell(
                             onTap: () {
-                              String activityUrl = 'https://www.google.com/maps/search/?api=1&query=${model.location!.long!},${model.location!.lat!}';
+                              String activityUrl = 'https://www.google.com/maps/search/?api=1&query=${model.location!.lat!},${model.location!.long!}';
                               OpenUrl.launchUrls(Uri.parse(activityUrl));
                             },
                             child: Row(
@@ -352,7 +352,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>  with TickerPro
                                       subTitle: model.eventDuration.toString() + AppLocalization.of(context).translate("day")
                                   ),
                                   CustomInfoWidget(
-                                    title: AppLocalization.of(context).translate("withdrawal_fee"),
+                                    title: AppLocalization.of(context).translate("admission_fee"),
+                                    subTitle: "${model.admissionFee} ${AppLocalization.of(context).translate("syr")}",
+                                  ),
+                                  CustomInfoWidget(
+                                    title: AppLocalization.of(context).translate("cancellation_fee"),
                                     subTitle: "${model.withdrawalFee} ${AppLocalization.of(context).translate("syr")}",
                                   ),
                                   CustomInfoWidget(

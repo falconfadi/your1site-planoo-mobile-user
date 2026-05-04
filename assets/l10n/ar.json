@@ -103,6 +103,7 @@
   "active": "نشط",
   "unactive": "غير نشط",
   "event_duration": "مدة الفعالية",
+  "admission_fee": "رسوم الدخول",
   "withdrawal_fee": "رسوم الانسحاب",
   "start_date": "تاريخ البدء",
   "end_date": "تاريخ الانتهاء",

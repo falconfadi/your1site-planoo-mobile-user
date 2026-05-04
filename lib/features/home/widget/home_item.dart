@@ -88,7 +88,7 @@ class _HomeItemState extends State<HomeItem> {
                   ),
                 ),
                 child: CachedImage(
-                    imageUrl: data.mediaList!.first.url!,
+                    imageUrl: data.mediaList!.isEmpty ? "" : data.mediaList!.first.url!,
                     fit: BoxFit.fill,
                 ),
               ),

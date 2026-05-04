@@ -164,7 +164,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen>  with TickerP
                         Expanded(
                           child: InkWell(
                             onTap: () {
-                              String activityUrl = 'https://www.google.com/maps/search/?api=1&query=${model.location!.long!},${model.location!.lat!}';
+                              String activityUrl = 'https://www.google.com/maps/search/?api=1&query=${model.location!.lat!},${model.location!.long!}';
                               OpenUrl.launchUrls(Uri.parse(activityUrl));
                             },
                             child: Row(
