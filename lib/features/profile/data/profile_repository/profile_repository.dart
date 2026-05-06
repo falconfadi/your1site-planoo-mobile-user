@@ -1,6 +1,7 @@
 import 'package:centro/core/repository/core_repository.dart';
 import 'package:centro/features/auth/data/model/sign_in_model.dart';
 import 'package:centro/features/profile/data/model/profile_image_model.dart';
+import 'package:centro/features/profile/data/usecase/delete_customer_usecase.dart';
 import 'package:centro/features/profile/data/usecase/delete_profile_image_usecase.dart';
 import 'package:centro/features/profile/data/usecase/edit_customer_usecase.dart';
 import 'package:centro/features/profile/data/usecase/get_customer_usecase.dart';
@@ -53,6 +54,15 @@ class ProfileRepository extends CoreRepository {
         responseStr: 'SignInResponse',
         converter: (json) => SignInResponse.fromJson(json));
     return call(result: result);
+  }
+
+  Future<Result<bool>> deleteCustomer({required DeleteCustomerParams params}) async {
+    final result = await RemoteDataSource.noModelRequest(
+      withAuthentication: true,
+      url: deleteCustomerUrl,
+      method: HttpMethod.DELETE,
+    );
+    return noModelCall(result: result);
   }
 
 }

@@ -18,6 +18,7 @@ import 'package:centro/features/auth/data/auth_repository/auth_repository.dart';
 import 'package:centro/features/auth/data/model/sign_in_model.dart';
 import 'package:centro/features/auth/data/usecase/logout_usecase.dart';
 import 'package:centro/features/auth/ui/sign_in_screen.dart';
+import 'package:centro/features/profile/data/usecase/delete_customer_usecase.dart';
 import 'package:centro/features/profile/ui/about_screen.dart';
 import 'package:centro/features/profile/ui/change_password_screen.dart';
 import 'package:centro/features/profile/data/profile_repository/profile_repository.dart';
@@ -170,6 +171,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ProfileCard(title: "change_password",onTap: () => Navigation.push(ChangePasswordScreen())),
                 SizedBox(height: 15.h),
                 ProfileCard(title: "terms_and_conditions",onTap: () => Navigation.push(TermsAndConditionsScreen())),
+                SizedBox(height: 15.h),
+                ProfileCard(title: "delete_account",onTap: () {
+                  Dialogs.showQuestion(
+                    context,
+                    title: "",
+                    content: StatefulBuilder(
+                        builder: (context, setStateDialog) {
+                          return Column(
+                            children: [
+                              ListTile(
+                                title: Text(AppLocalization.of(context).translate("are_you_sure") +
+                                    AppLocalization.of(context).translate("?"),
+                                  textAlign: TextAlign.center,
+                                  style: AppTheme.headlineSmall.copyWith(color: AppColors.mediumGrayColor),
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+                    ),
+                    btnOk: CreateModel(
+                      withValidation: false,
+                      onTap: () {},
+                      onSuccess: (data) {
+                        AppStorage.removeData(key: kAccessToken);
+                        AppStorage.removeData(key: userID);
+                        Navigation.pushAndRemoveUntil(SignInScreen());
+                      },
+                      useCaseCallBack: (model) {
+                        return DeleteCustomerUseCase(ProfileRepository()).call(
+                            params: DeleteCustomerParams());
+                      },
+                      child: CustomButton(
+                        height: 40.h,
+                        width: 1.sw,
+                        backgroundColor: AppColors.redColor,
+                        borderRadius: 8.r,
+                        buttonName: AppLocalization.of(context).translate("ok"),
+                        textStyle: AppTheme.headlineSmall.copyWith(color: AppColors.whiteColor),
+                      ),
+                    ),
+                  );
+                }),
                 SizedBox(height: 30.h),
                 CustomButton(
                   backgroundColor: AppColors.primaryColor,

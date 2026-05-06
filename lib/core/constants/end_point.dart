@@ -27,6 +27,7 @@ const String getCustomerUrl = "customer/get";
 const String uploadProfileImageUrl = "customer/uploadProfileImage";
 const String deleteProfileImageUrl = "customer/deleteProfileImage";
 const String editCustomerUrl = "customer/update";
+const String deleteCustomerUrl = "customer/delete";
 /// notification
 const String getNotificationsUrl = "notification/all";
 const String viewNotificationUrl = "notification/view";
