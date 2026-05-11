@@ -81,6 +81,7 @@ class _HomeItemState extends State<HomeItem> {
             Expanded(
               flex: 1,
               child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 5.w),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(15.r),
@@ -88,8 +89,10 @@ class _HomeItemState extends State<HomeItem> {
                   ),
                 ),
                 child: CachedImage(
-                    imageUrl: data.mediaList!.isEmpty ? "" : data.mediaList!.first.url!,
-                    fit: BoxFit.fill,
+                  height: 90.h,
+                  imageUrl: data.mediaList!.isEmpty ? "" : data.mediaList!.first.url!,
+                  fit: BoxFit.fill,
+                  borderRadius: 10.r,
                 ),
               ),
             ),

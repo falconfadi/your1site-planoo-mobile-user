@@ -10,7 +10,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-// todo add more code for ios later
 class FirebaseApi {
 
   static String? deviceToken;
@@ -18,34 +17,70 @@ class FirebaseApi {
   static bool _appReady = false;
 
   final _firebaseMessaging = FirebaseMessaging.instance;
-  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
 
-  void requestNotificationPermission() async {
-    _firebaseMessaging.requestPermission(alert: true, badge: true, sound: true);
+  Future<void> init() async {
+    await requestNotificationPermission();
+    await _initLocalNotifications();
+    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+    await getDeviceToken();
+    _listenToMessages();
+  }
+
+  Future<void> requestNotificationPermission() async {
+    final settings = await _firebaseMessaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    debugPrint('Permission: ${settings.authorizationStatus}');
   }
 
   Future<void> getDeviceToken() async {
-    deviceToken = await _firebaseMessaging.getToken();
-    print("******************************");
-    print('Device Token: $deviceToken');
-    print("******************************");
+    try {
+      if (Platform.isIOS) {
+        String? apnsToken;
+        int retry = 0;
+
+        while (apnsToken == null && retry < 10) {
+          apnsToken = await _firebaseMessaging.getAPNSToken();
+          await Future.delayed(const Duration(milliseconds: 500));
+          retry++;
+          debugPrint('APNS Token: $apnsToken');
+        }
+
+        debugPrint('APNS Token: $apnsToken');
+      }
+
+      deviceToken = await _firebaseMessaging.getToken();
+
+      debugPrint('FCM Token: $deviceToken');
+    } catch (e) {
+      debugPrint('Error getting token: $e');
+    }
   }
 
-  void isTokenRefresh() async {
-    _firebaseMessaging.onTokenRefresh.listen((event) {
-      event.toString();
+  void listenToTokenRefresh() {
+    _firebaseMessaging.onTokenRefresh.listen((token) {
+      deviceToken = token;
+      debugPrint('🔄 Token refreshed: $token');
     });
   }
 
-  void init() {
+  void _listenToMessages() {
     /// Foreground
     FirebaseMessaging.onMessage.listen((message) {
       _showLocalNotification(message);
     });
 
-    /// Background
+    /// Background (opened from notification)
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      _navigateFromMessage(message);
+      _handleMessageNavigation(message);
     });
 
     /// Terminated
@@ -57,37 +92,59 @@ class FirebaseApi {
     });
   }
 
-  Future<void> _showLocalNotification(RemoteMessage message) async {
-    if (Platform.isAndroid) {
-      const android = AndroidInitializationSettings('@drawable/notification_icon');
-      const init = InitializationSettings(android: android);
-      await _flutterLocalNotificationsPlugin.initialize(init, onDidReceiveNotificationResponse: (_) {
-        _navigateFromMessage(message);
-      });
-    }
+  Future<void> _initLocalNotifications() async {
+    const android = AndroidInitializationSettings('@drawable/notification_icon');
 
-    AndroidNotificationChannel channel = AndroidNotificationChannel(
-      Random.secure().nextInt(100000).toString(),
-      'High Importance',
-      importance: Importance.max,
+    const ios = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
     );
 
-    await _flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
+    const settings = InitializationSettings(
+      android: android,
+      iOS: ios,
+    );
 
-    await _flutterLocalNotificationsPlugin.show(
-      0,
+    await _localNotifications.initialize(
+      settings,
+      onDidReceiveNotificationResponse: (response) {},
+    );
+
+    if (Platform.isAndroid) {
+      const channel = AndroidNotificationChannel(
+        'high_importance_channel',
+        'High Importance Notifications',
+        importance: Importance.max,
+      );
+
+      await _localNotifications
+          .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(channel);
+    }
+  }
+
+  Future<void> _showLocalNotification(RemoteMessage message) async {
+    const android = AndroidNotificationDetails(
+      'high_importance_channel',
+      'High Importance Notifications',
+      importance: Importance.high,
+      priority: Priority.high,
+    );
+
+    const ios = DarwinNotificationDetails();
+
+    const details = NotificationDetails(
+      android: android,
+      iOS: ios,
+    );
+
+    await _localNotifications.show(
+      Random().nextInt(100000),
       message.notification?.title,
       message.notification?.body,
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'high',
-          'High',
-          importance: Importance.high,
-          priority: Priority.high,
-        ),
-      ),
+      details,
     );
   }
 
@@ -98,8 +155,43 @@ class FirebaseApi {
 
   void _tryNavigate() {
     if (_initialMessage != null && _appReady) {
-      _navigateFromMessage(_initialMessage!);
+      _handleMessageNavigation(_initialMessage!);
       _initialMessage = null;
+    }
+  }
+
+  void _handleMessageNavigation(RemoteMessage message) {
+    final data = message.data;
+
+    if (data.isEmpty || !data.containsKey('type')) return;
+
+    final type = int.tryParse(data['type'].toString());
+    if (type == null) return;
+
+    Widget target;
+
+    switch (type) {
+      case 1:
+        target = const NotificationScreen();
+        break;
+
+      case 5:
+        target = AppointmentDetailsScreen(
+          appointmentId: int.parse(data['appointment']),
+        );
+        break;
+
+      default:
+        return;
+    }
+
+    if (Navigation.hasNavigationStack) {
+      Navigation.push(target);
+    } else {
+      Navigation.pushReplacement(const NavBarScreen(pageIndex: 0));
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigation.push(target);
+      });
     }
   }
 

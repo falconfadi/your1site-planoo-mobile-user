@@ -59,6 +59,7 @@ class FavoriteItem extends StatelessWidget {
             Expanded(
               flex: 1,
               child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 5.w),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(15.r),
@@ -68,6 +69,8 @@ class FavoriteItem extends StatelessWidget {
                 child: CachedImage(
                   imageUrl: imageUrl ?? "",
                   fit: BoxFit.fill,
+                  height: 85.h,
+                  borderRadius: 10.r,
                 ),
               ),
             ),

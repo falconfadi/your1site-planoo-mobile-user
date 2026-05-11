@@ -25,17 +25,52 @@
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
-    <false/>
-    <key>LSApplicationQueriesSchemes</key>
-    <array>
-        <string>mailto</string>
-    </array>
+	<false/>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>mailto</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>We use the camera to update your profile photo</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-    <string>We use your location to help you pick and display places on the map</string>
-    <key>UIApplicationSupportsIndirectInputEvents</key>
-    <true/>
+	<string>We use your location to help you pick and display places on the map</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We save images to your library</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We access your photos to update profile photo</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneClassName</key>
+					<string>UIWindowScene</string>
+					<key>UISceneConfigurationName</key>
+					<string>flutter</string>
+					<key>UISceneDelegateClassName</key>
+					<string>FlutterSceneDelegate</string>
+					<key>UISceneStoryboardFile</key>
+					<string>Main</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
+	<key>UIDeviceFamily</key>
+	<array>
+		<integer>1</integer>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -46,17 +81,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>UIDeviceFamily</key>
-    <array>
-        <integer>1</integer>
-    </array>
-    <key>NSCameraUsageDescription</key>
-    <string>We use the camera to update your profile photo</string>
-
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>We access your photos to update profile photo</string>
-
-    <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>We save images to your library</string>
 </dict>
 </plist>
