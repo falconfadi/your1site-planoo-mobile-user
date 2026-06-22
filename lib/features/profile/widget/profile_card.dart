@@ -23,16 +23,19 @@ class ProfileCard extends StatelessWidget {
         elevation: 5,
         child: Container(
           width: 1.sw,
-          padding: EdgeInsets.symmetric(horizontal: 15.w,vertical: 15.h),
+          padding: EdgeInsets.symmetric(horizontal: 15.w,vertical: 10.h),
           decoration: BoxDecoration(
             color: AppColors.whiteColor,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(child: Text(AppLocalization.of(context).translate(title),style: AppTheme.bodyLarge.copyWith(fontSize: 20.sp))),
+              Expanded(child: Padding(
+                padding: EdgeInsets.only(top: 8.h),
+                child: Text(AppLocalization.of(context).translate(title),style: AppTheme.bodyLarge.copyWith(fontSize: 20.sp)),
+              )),
               SizedBox(width: 5.w),
-              Icon(Icons.arrow_forward_ios_outlined),
+              Icon(Icons.arrow_forward_ios_outlined,size: 20.sp),
             ],
           ),
         ),

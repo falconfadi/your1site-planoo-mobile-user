@@ -28,16 +28,16 @@ class EventDetailsModel extends BaseModel {
   CategoryInfoModel? category;
   bool? isActive;
   bool? isFull;
-  int? eventDuration;
   int? capacity;
   int? admissionFee;
   int? withdrawalFee;
+  int? eventDuration;
   String? startDate;
   String? endDate;
   int? rate;
+  String? status;
   bool? isFavorite;
   bool? isAttending;
-  String? status;
   List<DayModel>? workdaysList;
   List<TagModel>? facilitiesList;
   LocationModel? location;
@@ -51,16 +51,16 @@ class EventDetailsModel extends BaseModel {
     this.category,
     this.isActive,
     this.isFull,
-    this.eventDuration,
     this.capacity,
     this.admissionFee,
     this.withdrawalFee,
+    this.eventDuration,
     this.startDate,
     this.endDate,
     this.rate,
+    this.status,
     this.isFavorite,
     this.isAttending,
-    this.status,
     this.workdaysList,
     this.facilitiesList,
     this.location,
@@ -75,16 +75,16 @@ class EventDetailsModel extends BaseModel {
     category = json['category'] != null ? CategoryInfoModel.fromJson(json['category']) : null;
     isActive = json['is_active'];
     isFull = json['is_full'];
-    eventDuration = json['event_duration'];
     capacity = json['capacity'];
     admissionFee = json['admission_fee'];
     withdrawalFee = json['withdrawal_fee'];
+    eventDuration = json['event_duration'];
     startDate = json['start_date'];
     endDate = json['end_date'];
     rate = json['rate'];
+    status = json['status'];
     isFavorite = json['is_favorite'];
     isAttending = json['is_attending'];
-    status = json['status'];
     if (json['days'] != null) {
       workdaysList = <DayModel>[];
       json['days'].forEach((v) {
@@ -122,16 +122,16 @@ class EventDetailsModel extends BaseModel {
     }
     data['is_active'] = isActive;
     data['is_full'] = isFull;
-    data['event_duration'] = eventDuration;
     data['capacity'] = capacity;
     data['admission_fee'] = admissionFee;
     data['withdrawal_fee'] = withdrawalFee;
+    data['event_duration'] = eventDuration;
     data['start_date'] = startDate;
     data['end_date'] = endDate;
     data['rate'] = rate;
+    data['status'] = status;
     data['is_favorite'] = isFavorite;
     data['is_attending'] = isAttending;
-    data['status'] = status;
     if (facilitiesList != null) {
       data['tags'] = facilitiesList!.map((v) => v.toJson()).toList();
     }

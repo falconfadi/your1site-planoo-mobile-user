@@ -13,7 +13,6 @@ import 'package:centro/features/home/widget/featured_item.dart';
 import 'package:centro/features/home/widget/home_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:centro/core/utils/form_utils/form_state_mixin.dart';
 
 class HomeScreen extends StatefulWidget {
 
@@ -23,7 +22,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with FormStateMinxin {
+class _HomeScreenState extends State<HomeScreen> {
 
   int selectedTab = 0;
 
@@ -37,7 +36,6 @@ class _HomeScreenState extends State<HomeScreen> with FormStateMinxin {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 10.h),
               TabsWidget(
                 inCenter: true,
                 selectedTab: selectedTab,
@@ -59,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> with FormStateMinxin {
                     return FeaturedUseCase(HomeRepository()).call(params: FeaturedParams());
                   },
                   modelBuilder: (model) => FeaturedItem(
-                    activity: selectedTab == 0 ? model.featuredInfoModel!.activities!.first : null,
+                    court: selectedTab == 0 ? model.featuredInfoModel!.courts!.first : null,
                     course: selectedTab == 1 ? model.featuredInfoModel!.courses!.first : null,
                     event: selectedTab == 2 ? model.featuredInfoModel!.events!.first : null,
                   ),
@@ -79,11 +77,11 @@ class _HomeScreenState extends State<HomeScreen> with FormStateMinxin {
                   shrinkWrap: true,
                   scrollDirection: Axis.vertical,
                   physics: NeverScrollableScrollPhysics(),
-                  itemCount:  selectedTab == 0 ? model.feedsList!.activities!.length :
+                  itemCount:  selectedTab == 0 ? model.feedsList!.courts!.length :
                   selectedTab == 1 ?  model.feedsList!.courses!.length : model.feedsList!.events!.length,
                   itemBuilder: (context,index) {
                     return HomeItem(
-                      activity: selectedTab == 0 ? model.feedsList!.activities![index] : null,
+                      court: selectedTab == 0 ? model.feedsList!.courts![index] : null,
                       course: selectedTab == 1 ? model.feedsList!.courses![index] : null,
                       event: selectedTab == 2 ? model.feedsList!.events![index] : null,
                     );
@@ -95,7 +93,4 @@ class _HomeScreenState extends State<HomeScreen> with FormStateMinxin {
         )
     );
   }
-
-  @override
-  int numberOfFields() => 1;
 }

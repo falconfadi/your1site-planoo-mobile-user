@@ -3,6 +3,9 @@
 const logo = 'assets/images/logo.png';
 const miniLogo = 'assets/images/mini_logo.png';
 
+/// videos ///
+const splash = 'assets/videos/splash.json';
+
 /// icons svg ///
 const about = 'assets/icons/about.svg';
 const appointment = 'assets/icons/appointment.svg';
@@ -26,3 +29,5 @@ const user = 'assets/icons/user.svg';
 const visiblePassword = 'assets/icons/visible_password.svg';
 const close = 'assets/icons/close.svg';
 const check = 'assets/icons/check.svg';
+const capacity = 'assets/icons/capacity.svg';
+const remainingSessions = 'assets/icons/remaining_sessions.svg';

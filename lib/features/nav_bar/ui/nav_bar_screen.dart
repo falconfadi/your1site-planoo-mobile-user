@@ -1,4 +1,6 @@
+import 'package:centro/core/classes/firebase_api.dart';
 import 'package:centro/core/constants/app_colors.dart';
+import 'package:centro/core/utils/responsive/responsive.dart';
 import 'package:centro/features/appointment/ui/appointments_screen.dart';
 import 'package:centro/features/category/ui/category_screen.dart';
 import 'package:centro/features/home/ui/home_screen.dart';
@@ -29,6 +31,11 @@ class _NavBarScreenState extends State<NavBarScreen> {
   void initState() {
     super.initState();
     _controller = PersistentTabController(initialIndex: widget.pageIndex);
+    FirebaseApi.instance.refreshNotificationsStatus();
+
+    FirebaseApi.instance.onNotificationChange = () {
+      FirebaseApi.instance.refreshNotificationsStatus();
+    };
   }
 
   List<Widget> _buildScreens() => [
@@ -68,6 +75,7 @@ class _NavBarScreenState extends State<NavBarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = Responsive.isTablet(context);
     return Scaffold(
       key: _scaffoldKey,
       body: PersistentTabView(
@@ -80,7 +88,7 @@ class _NavBarScreenState extends State<NavBarScreen> {
       stateManagement: true,
       hideNavigationBarWhenKeyboardAppears: true,
       popBehaviorOnSelectedNavBarItemPress: PopBehavior.once,
-      padding: EdgeInsets.symmetric(vertical: 5.h),
+      padding: EdgeInsets.symmetric(vertical: isTablet ? 0 : 5.h),
       backgroundColor: AppColors.whiteColor,
       decoration: NavBarDecoration(
         colorBehindNavBar: AppColors.whiteColor,
@@ -93,8 +101,8 @@ class _NavBarScreenState extends State<NavBarScreen> {
         ],
       ),
       confineToSafeArea: true,
-      navBarHeight: kBottomNavigationBarHeight,
-      navBarStyle: _navBarStyle,
+        navBarHeight: isTablet ? 85 : kBottomNavigationBarHeight,
+        navBarStyle: _navBarStyle,
       )
     );
   }

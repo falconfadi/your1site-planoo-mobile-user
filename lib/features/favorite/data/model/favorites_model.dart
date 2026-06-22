@@ -63,7 +63,7 @@ class FavoriteItemModel {
         parsedHolder = CourseHolderModel.fromJson(json['holder']);
         break;
       case 'App\\Models\\Activity':
-        parsedHolder = ActivityHolderModel.fromJson(json['holder']);
+        parsedHolder = CourtHolderModel.fromJson(json['holder']);
         break;
       default:
         throw "";
@@ -204,14 +204,14 @@ class CourseHolderModel extends Holder {
   }
 }
 
-class ActivityHolderModel extends Holder {
+class CourtHolderModel extends Holder {
   int? price;
   int? sessionDuration;
   bool? isActive;
   int? rate;
   List<ImageModel>? mediaList;
 
-  ActivityHolderModel({
+  CourtHolderModel({
     required super.id,
     required super.userId,
     required super.categoryId,
@@ -224,7 +224,7 @@ class ActivityHolderModel extends Holder {
     this.mediaList,
   });
 
-  ActivityHolderModel.fromJson(Map<String, dynamic> json)  : super(
+  CourtHolderModel.fromJson(Map<String, dynamic> json)  : super(
     id: json['id'],
     userId: json['user_id'],
     categoryId: json['category_id'],

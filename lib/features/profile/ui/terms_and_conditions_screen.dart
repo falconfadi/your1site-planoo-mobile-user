@@ -4,6 +4,7 @@ import 'package:centro/core/constants/app_colors.dart';
 import 'package:centro/core/constants/app_styles.dart';
 import 'package:centro/core/ui/shared_widgets/custom_header.dart';
 import 'package:centro/core/utils/project_utils/open_url.dart';
+import 'package:centro/core/utils/responsive/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -323,6 +324,7 @@ affiliates from any claims, damages, losses, or legal actions arising from: </p>
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = Responsive.isTablet(context);
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
       appBar: CustomHeader(title: AppLocalization.of(context).translate("terms_and_conditions"),isNavBar: false),
@@ -340,22 +342,22 @@ affiliates from any claims, damages, losses, or legal actions arising from: </p>
               style: {
                 "h1": Style(
                   fontFamily: "Tajawal",
-                  fontSize: FontSize(20),
+                  fontSize: FontSize(isTablet ? 16.sp : 20),
                   fontWeight: FontWeight.bold,
                 ),
                 "h2": Style(
                   fontFamily: "Tajawal",
-                  fontSize: FontSize(18),
+                  fontSize: FontSize(isTablet ? 15.sp : 18),
                   fontWeight: FontWeight.w600,
                 ),
                 "p": Style(
                   fontFamily: "Tajawal",
-                  fontSize: FontSize(15),
+                  fontSize: FontSize(isTablet ? 13.sp : 15),
                   lineHeight: LineHeight(1.2),
                 ),
                 "body": Style(
                   fontFamily: "Tajawal",
-                  fontSize: FontSize(14),
+                  fontSize: FontSize(isTablet ? 11.sp : 14),
                   lineHeight: LineHeight(1.6),
                   color: AppColors.blackColor,
                 ),

@@ -73,7 +73,7 @@ class _ForgetPasswordSheetState extends State<ForgetPasswordSheet>  with FormSta
                   buttonName: AppLocalization.of(context).translate("send"),
                 ),
             ),
-            SizedBox(height: 30.h),
+            SizedBox(height: 50.h),
           ],
         ),
       ),

@@ -3,24 +3,24 @@ import 'package:centro/core/data_source/remote_data_source.dart';
 import 'package:centro/core/http/http_method.dart';
 import 'package:centro/core/repository/core_repository.dart';
 import 'package:centro/core/results/result.dart';
-import 'package:centro/features/category/data/model/activity/activity_details_model.dart';
-import 'package:centro/features/category/data/model/activity/all_activities_model.dart';
+import 'package:centro/features/category/data/model/court/court_details_model.dart';
+import 'package:centro/features/category/data/model/court/all_courts_model.dart';
 import 'package:centro/features/category/data/model/category_model.dart';
 import 'package:centro/features/category/data/model/course/all_courses_model.dart';
 import 'package:centro/features/category/data/model/course/course_details_model.dart';
 import 'package:centro/features/category/data/model/event/all_events_model.dart';
 import 'package:centro/features/category/data/model/event/event_details_model.dart';
 import 'package:centro/features/category/data/model/review_model.dart';
-import 'package:centro/features/category/data/model/activity/slots_model.dart';
-import 'package:centro/features/category/data/usecase/activity/activity_details_usecase.dart';
-import 'package:centro/features/category/data/usecase/activity/all_activities_usecase.dart';
+import 'package:centro/features/category/data/model/court/slots_model.dart';
+import 'package:centro/features/category/data/usecase/court/court_details_usecase.dart';
+import 'package:centro/features/category/data/usecase/court/all_courts_usecase.dart';
 import 'package:centro/features/category/data/usecase/add_review_usecase.dart';
 import 'package:centro/features/category/data/usecase/categories_usecase.dart';
-import 'package:centro/features/category/data/usecase/activity/check_activity_usecase.dart';
+import 'package:centro/features/category/data/usecase/court/check_court_usecase.dart';
 import 'package:centro/features/category/data/usecase/course/all_courses_usecase.dart';
 import 'package:centro/features/category/data/usecase/course/attend_course_usecase.dart';
 import 'package:centro/features/category/data/usecase/course/course_details_usecase.dart';
-import 'package:centro/features/category/data/usecase/activity/book_activity_usecase.dart';
+import 'package:centro/features/category/data/usecase/court/book_court_usecase.dart';
 import 'package:centro/features/category/data/usecase/event/all_events_usecase.dart';
 import 'package:centro/features/category/data/usecase/event/attend_event_usecase.dart';
 import 'package:centro/features/category/data/usecase/event/event_details_usecase.dart';
@@ -40,24 +40,24 @@ class CategoryRepository extends CoreRepository {
     return call(result: result);
   }
 
-  Future<Result<List<ActivityDetailsModel>>> getAllActivities({required AllActivitiesParams params}) async {
+  Future<Result<List<CourtDetailsModel>>> getAllCourts({required AllCourtsParams params}) async {
     final result = await RemoteDataSource.request(
         withAuthentication: true,
         url: "$allActivitiesUrl?page=${params.request.page}",
         method: HttpMethod.POST,
         data: params.toJson(),
-        responseStr: 'AllActivitiesResponse',
-        converter: (json) => AllActivitiesResponse.fromJson(json));
+        responseStr: 'AllCourtsResponse',
+        converter: (json) => AllCourtsResponse.fromJson(json));
     return paginatedCall(result: result);
   }
 
-  Future<Result<ActivityDetailsModel>> getActivityDetails({required ActivityDetailsParams params}) async {
+  Future<Result<CourtDetailsModel>> getCourtDetails({required CourtDetailsParams params}) async {
     final result = await RemoteDataSource.request(
         withAuthentication: true,
-        url: "$activityDetailsUrl?activity_id=${params.activityId}",
+        url: "$activityDetailsUrl?activity_id=${params.courtId}",
         method: HttpMethod.GET,
-        responseStr: 'ActivityDetailsResponse',
-        converter: (json) => ActivityDetailsResponse.fromJson(json));
+        responseStr: 'CourtDetailsResponse',
+        converter: (json) => CourtDetailsResponse.fromJson(json));
     return call(result: result);
   }
 
@@ -123,7 +123,7 @@ class CategoryRepository extends CoreRepository {
     return noModelCall(result: result);
   }
 
-  Future<Result<SlotsModel>> checkActivity({required CheckActivityParams params}) async {
+  Future<Result<SlotsModel>> checkCourt({required CheckCourtParams params}) async {
     final result = await RemoteDataSource.request(
         withAuthentication: true,
         url: checkActivityAppointmentUrl,
@@ -134,7 +134,7 @@ class CategoryRepository extends CoreRepository {
     return call(result: result);
   }
 
-  Future<Result<bool>> bookActivity({required BookActivityParams params}) async {
+  Future<Result<bool>> bookCourt({required BookCourtParams params}) async {
     final result = await RemoteDataSource.noModelRequest(
       withAuthentication: true,
       url: createActivityAppointmentUrl,

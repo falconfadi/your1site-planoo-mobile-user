@@ -1,6 +1,6 @@
-import 'package:centro/features/category/data/model/activity/slot_details_model.dart';
+import 'package:centro/features/category/data/model/court/slot_details_model.dart';
 
-class BookActivityModel {
+class BookCourtModel {
 
   int? dayId;
   String? code;
@@ -9,7 +9,7 @@ class BookActivityModel {
   int? slotIndex;
   String? note;
 
-  BookActivityModel({
+  BookCourtModel({
     this.dayId,
     this.code,
     this.date,

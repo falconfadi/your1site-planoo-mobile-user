@@ -1,8 +1,8 @@
 import 'package:centro/core/boilerplate/create_model/widgets/create_model.dart';
 import 'package:centro/core/boilerplate/get_model/cubits/get_model_cubit.dart';
 import 'package:centro/core/boilerplate/get_model/widgets/get_model.dart';
-import 'package:centro/core/classes/Keys.dart';
 import 'package:centro/core/classes/app_localization.dart';
+import 'package:centro/core/classes/app_storage.dart';
 import 'package:centro/core/constants/app_colors.dart';
 import 'package:centro/core/constants/app_images.dart';
 import 'package:centro/core/constants/app_styles.dart';
@@ -12,12 +12,12 @@ import 'package:centro/core/ui/shared_widgets/custom_info_widget.dart';
 import 'package:centro/core/ui/shared_widgets/custom_rating_bar.dart';
 import 'package:centro/core/ui/shared_widgets/expandable_text_widget.dart';
 import 'package:centro/core/ui/shared_widgets/icon_text_widget.dart';
-import 'package:centro/core/ui/widgets/cached_image.dart';
 import 'package:centro/core/ui/widgets/custom_button.dart';
 import 'package:centro/core/ui/widgets/custom_sheet.dart';
 import 'package:centro/core/utils/Navigation/Navigation.dart';
 import 'package:centro/core/utils/project_utils/open_url.dart';
 import 'package:centro/core/utils/project_utils/string_utils.dart';
+import 'package:centro/core/utils/responsive/responsive.dart';
 import 'package:centro/core/utils/validators/convert_date_time.dart';
 import 'package:centro/features/category/data/category_repository/category_repository.dart';
 import 'package:centro/features/category/data/model/event/event_details_model.dart';
@@ -27,8 +27,10 @@ import 'package:centro/features/category/data/usecase/event/event_details_usecas
 import 'package:centro/features/category/data/usecase/reviews_usecase.dart';
 import 'package:centro/features/category/ui/confirm_booking_screen.dart';
 import 'package:centro/features/category/widget/add_review_sheet.dart';
+import 'package:centro/features/category/widget/facilities_preview_widget.dart';
 import 'package:centro/features/category/widget/images_slider_widget.dart';
 import 'package:centro/features/category/widget/reviews_sheet.dart';
+import 'package:centro/features/category/widget/workdays_preview_widget.dart';
 import 'package:centro/features/favorite/data/favorite_repository/favorite_repository.dart';
 import 'package:centro/features/favorite/data/usecase/add_favorite_usecase.dart';
 import 'package:flutter/material.dart';
@@ -73,6 +75,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>  with TickerPro
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = Responsive.isTablet(context);
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
       appBar: CustomHeader(title: "",isNavBar: false),
@@ -171,7 +174,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>  with TickerPro
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                SvgPicture.asset(location,color: AppColors.mediumGrayColor),
+                                SvgPicture.asset(location,color: AppColors.mediumGrayColor,width: 24.w),
                                 Text(AppLocalization.of(context).translate("view_map"),
                                     style: AppTheme.titleMedium.copyWith(color: AppColors.mediumGrayColor)
                                 ),
@@ -183,139 +186,82 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>  with TickerPro
                     ),
                     SizedBox(height: 15.h),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        CustomRatingBar(rate: model.rate!.toDouble(),size: 20.sp),
+                        SizedBox(width: 5.w),
                         Expanded(
-                          flex: 4,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CustomRatingBar(rate: model.rate!.toDouble(),size: 20.sp),
-                              SizedBox(width: 5.w),
-                              Expanded(
-                                child: GetModel<ReviewModel>(
-                                    useCaseCallBack: () => ReviewsUseCase(CategoryRepository()).call(
-                                        params: ReviewsParams(ownerType: "event", ownerId: model.iD!)
-                                    ),
-                                    onCubitCreated: (cubit) {
-                                      reviewCubit = cubit as GetModelCubit<ReviewModel>;
-                                    },
-                                    onError: (error) {
-                                      if (error.contains("Not found")) {
-                                        return ReviewModel(reviewsList: []);
-                                      }
-                                      return null;
-                                    },
-                                    modelBuilder: (reviewModel) {
-                                      return InkWell(
-                                        onTap: () {
-                                          CustomSheet.show(
-                                              isDismissible: true,
-                                              header: Text(AppLocalization.of(context).translate("reviews"),
-                                                style: AppTheme.titleLarge.copyWith(fontSize: 18.sp),
-                                              ),
-                                              action: InkWell(
-                                                  onTap: () {
-                                                    CustomSheet.show(
-                                                        isDismissible: true,
-                                                        header: Center(),
-                                                        padding: 30.w,
-                                                        context: context,
-                                                        child: AddReviewSheet(ownerType: "event", ownerId: model.iD!,
-                                                          onRefresh: () async {
-                                                            // todo check later
-                                                            reviewCubit!.getModel(silent: true);
-                                                            eventCubit!.getModel(silent: true);
-                                                          },
-                                                        )
-                                                    );
-                                                  },
-                                                  child: Icon(Icons.add_circle_outline_outlined,color: AppColors.primaryColor)),
-                                              padding: 30.w,
-                                              context: context,
-                                              height: reviewModel.reviewsList!.isEmpty ? null :  1.sh * 0.9.h,
-                                              child: ReviewsSheet(reviews: reviewModel.reviewsList)
-                                          );
-                                        },
-                                        child: Text("(${truncateNumber( reviewModel.reviewsList!.length,maxLength: 8)} ${AppLocalization.of(context).translate("reviews")})",
-                                            maxLines: 1,overflow: TextOverflow.ellipsis,
-                                            style: AppTheme.labelLarge.copyWith(color: reviewModel.reviewsList!.isEmpty ? AppColors.mediumGrayColor : AppColors.purpleColor,fontSize: 18.sp)),
-                                      );
-                                    }
-                                ),
+                          child: GetModel<ReviewModel>(
+                              useCaseCallBack: () => ReviewsUseCase(CategoryRepository()).call(
+                                  params: ReviewsParams(ownerType: "event", ownerId: model.iD!)
                               ),
-                            ],
+                              onCubitCreated: (cubit) {
+                                reviewCubit = cubit as GetModelCubit<ReviewModel>;
+                              },
+                              onError: (error) {
+                                if ((AppStorage.languageCode == "en" && error.contains("reviews not found")) ||
+                                    AppStorage.languageCode == "ar" && error.contains("التعليقات غير موجود")
+                                ) {
+                                  return ReviewModel(reviewsList: []);
+                                }
+                                return null;
+                              },
+                              modelBuilder: (reviewModel) {
+                                return InkWell(
+                                  onTap: () {
+                                    CustomSheet.show(
+                                        isDismissible: true,
+                                        header: Text(AppLocalization.of(context).translate("reviews"),
+                                          style: AppTheme.titleLarge.copyWith(fontSize: 18.sp),
+                                        ),
+                                        action: InkWell(
+                                            onTap: () {
+                                              CustomSheet.show(
+                                                  isDismissible: true,
+                                                  header: Center(),
+                                                  padding: 30.w,
+                                                  context: context,
+                                                  child: AddReviewSheet(ownerType: "event", ownerId: model.iD!,
+                                                    onRefresh: () async {
+                                                      reviewCubit!.getModel(silent: true);
+                                                      eventCubit!.getModel(silent: true);
+                                                    },
+                                                  )
+                                              );
+                                            },
+                                            child: Icon(Icons.add_circle_outline_outlined,color: AppColors.primaryColor,size: isTablet ? 25.sp : null)),
+                                        padding: 30.w,
+                                        context: context,
+                                        height: reviewModel.reviewsList!.isEmpty ? null :  1.sh * 0.9,
+                                        child: ReviewsSheet(reviews: reviewModel.reviewsList)
+                                    );
+                                  },
+                                  child: Text("(${truncateNumber( reviewModel.reviewsList!.length,maxLength: 8)} ${AppLocalization.of(context).translate("reviews")})",
+                                      maxLines: 1,overflow: TextOverflow.ellipsis,
+                                      style: AppTheme.labelLarge.copyWith(color: reviewModel.reviewsList!.isEmpty ? AppColors.mediumGrayColor : AppColors.purpleColor,fontSize: 18.sp)),
+                                );
+                              }
                           ),
                         ),
                       ],
                     ),
-                    model.facilitiesList!.isEmpty ? Center() :
-                    SizedBox(
-                        height: 120.h,
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          itemCount: model.facilitiesList!.length,
-                          itemBuilder: (context,index) {
-                            return Container(
-                              margin: EdgeInsets.symmetric(horizontal: 5.w),
-                              padding: EdgeInsets.symmetric(vertical: 10.h,horizontal: 10.w),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Flexible(child: CachedImage(width: 50.w,height: 50.w,imageUrl: model.facilitiesList![index].icon!, fit: BoxFit.cover)),
-                                  SizedBox(height: 10.h),
-                                  Flexible(child: Text(model.facilitiesList![index].name!,style: AppTheme.headlineSmall)),
-                                ],
-                              ),
-                            );
-                          },
-                        )
-                    ),
-                    SizedBox(height: model.facilitiesList!.isEmpty ? 0 : 10.h),
+                    SizedBox(height: 15.h),
                     ExpandableTextWidget(
                       text: model.description!,
                       style: AppTheme.labelLarge,
                     ),
                     SizedBox(height: 15.h),
-                    SizedBox(
-                        height: 100.h,
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          itemCount: model.workdaysList!.length,
-                          itemBuilder: (context,index) {
-                            return Container(
-                              margin: EdgeInsets.symmetric(horizontal: 5.w),
-                              padding: EdgeInsets.symmetric(vertical: 10.h,horizontal: 10.w),
-                              decoration: BoxDecoration(
-                                color: AppColors.whiteColor,
-                                borderRadius: BorderRadius.circular(10.r),
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Flexible(child: Text(model.workdaysList![index].day!,style: AppTheme.titleLarge)),
-                                  Flexible(child: Text("${model.workdaysList![index].start} - ${model.workdaysList![index].end}",style: AppTheme.labelLarge.copyWith(color: AppColors.mediumGrayColor))),
-                                ],
-                              ),
-                            );
-                          },
-                        )
-                    ),
+                    WorkdaysPreviewWidget(workdaysList: model.workdaysList!),
+                    SizedBox(height: model.facilitiesList!.isEmpty ? 0 : 15.h),
+                    model.facilitiesList!.isEmpty ? Center() :
+                    FacilitiesPreviewWidget(facilitiesList: model.facilitiesList!),
                     SizedBox(height: 15.h),
                     Card(
-                      key: Keys.scrollKey,
-                      color: AppColors.whiteColor,
+                      color: AppColors.extraLightGrayColor,
                       elevation: 3,
                       shadowColor: AppColors.gray2Color,
                       child: Container(
-                        width: 1.sw,
-                        margin: EdgeInsets.symmetric(vertical: 15.h,horizontal: 15.w),
+                        padding: EdgeInsets.symmetric(vertical: 10.h,horizontal: 15.w),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -333,14 +279,24 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>  with TickerPro
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(AppLocalization.of(context).translate("details"),
-                                    style: AppTheme.headlineMedium,
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(top: 5.h),
+                                      child: Text(AppLocalization.of(context).translate("details"),
+                                        style: AppTheme.headlineSmall,
+                                      ),
+                                    ),
                                   ),
-                                  Icon(!isExpanded ? Icons.keyboard_arrow_down_outlined : Icons.keyboard_arrow_up_outlined,size: 30.sp)
+                                  Icon(isExpanded ? Icons.arrow_circle_down_outlined :
+                                  AppStorage.languageCode == "ar" ?
+                                  Icons.arrow_circle_left_outlined :
+                                  Icons.arrow_circle_right_outlined,color: AppColors.purpleColor,
+                                    size: isTablet ? 22.sp : null,
+                                  )
                                 ],
                               ),
                             ),
-                            SizedBox(height: !isExpanded ? 0 : 10.h),
+                            SizedBox(height: !isExpanded ? 0 : 20.h),
                             AnimatedSize(
                               duration: Duration(milliseconds: 300),
                               curve: Curves.easeInOut,
@@ -360,20 +316,19 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>  with TickerPro
                                     subTitle: "${model.withdrawalFee} ${AppLocalization.of(context).translate("syr")}",
                                   ),
                                   CustomInfoWidget(
-                                      title: AppLocalization.of(context).translate("capacity"),
-                                      subTitle: model.capacity.toString()
-                                  ),
-                                  CustomInfoWidget(
-                                      title: AppLocalization.of(context).translate("status"),
-                                      subTitle: model.status!
-                                  ),
-                                  CustomInfoWidget(
                                       title: AppLocalization.of(context).translate("start_date"),
                                       subTitle: convertDate(date: model.startDate!,format: "dd/MM/yyyy")
                                   ),
                                   CustomInfoWidget(
                                       title: AppLocalization.of(context).translate("end_date"),
                                       subTitle: convertDate(date: model.endDate!,format: "dd/MM/yyyy")
+                                  ),
+                                  CustomInfoWidget(title: AppLocalization.of(context).translate("status"),
+                                    subTitle: model.status!,
+                                  ),
+                                  CustomInfoWidget(
+                                      title: AppLocalization.of(context).translate("capacity"),
+                                      subTitle: model.capacity.toString()
                                   ),
                                   IconTextWidget(
                                       icon: model.isFull == true ? close : check,
@@ -387,12 +342,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>  with TickerPro
                                       iconColor: model.isActive == false ? AppColors.redColor : AppColors.darkGreenColor,
                                       text: AppLocalization.of(context).translate(model.isActive == false ? "unactive" : "active"),
                                       textStyle: AppTheme.bodyLarge.copyWith(fontSize: 18.sp)),
-
                                 ],
                               ) : const SizedBox.shrink(),
-
                             ),
-
                           ],
                         ),
                       ),
@@ -400,7 +352,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>  with TickerPro
                   ],
                 ),
               ),
-              SizedBox(height: 10.h),
+              SizedBox(height: 20.h),
             ],
           ),
         ),

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:centro/core/classes/app_storage.dart';
 import 'package:centro/core/classes/firebase_api.dart';
 import 'package:centro/core/constants/app_colors.dart';
@@ -8,7 +7,8 @@ import 'package:centro/core/utils/Navigation/Navigation.dart';
 import 'package:centro/features/auth/ui/sign_in_screen.dart';
 import 'package:centro/features/nav_bar/ui/nav_bar_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:lottie/lottie.dart';
 
 class SplashScreen extends StatefulWidget {
 
@@ -20,36 +20,36 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
 
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _fadeAnimation;
-  late Animation<double> _rotationAnimation;
+  late final AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(vsync: this);
 
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    );
-
-    final curved = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
-
-    _scaleAnimation = Tween<double>(begin: 0.6, end: 1.0).animate(curved);
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(curved);
-    _rotationAnimation = Tween<double>(begin: 0.0, end: 2 * 3.1416).animate(curved);
-
-    _controller.forward();
-
-    Timer(const Duration(seconds: 3), () async {
-      if(AppStorage.getData(key: kAccessToken) != null) {
-        Navigation.pushReplacement(NavBarScreen(pageIndex: 0));
-      } else {
-        Navigation.pushReplacement(SignInScreen());
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _navigateToNextScreen();
       }
-      FirebaseApi().appIsReady();
     });
+  }
+
+  void _navigateToNextScreen() {
+    final token = AppStorage.getData(key: kAccessToken);
+
+    if (token == null) {
+      Navigation.pushReplacement(SignInScreen());
+      return;
+    }
+
+    if (JwtDecoder.isExpired(token)) {
+      AppStorage.removeData(key: kAccessToken);
+      AppStorage.removeData(key: kAccessTokenExpirationDate);
+      Navigation.pushReplacement(SignInScreen());
+      return;
+    }
+    Navigation.pushReplacement(NavBarScreen(pageIndex: 0));
+    FirebaseApi.instance.appIsReady();
   }
 
   @override
@@ -62,23 +62,14 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
-      body: Center(
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            return Opacity(
-              opacity: _fadeAnimation.value,
-              child: Transform.scale(
-                scale: _scaleAnimation.value,
-                child: Transform.rotate(
-                  angle: _rotationAnimation.value,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w),
-                    child: Image.asset(logo),
-                  ),
-                ),
-              ),
-            );
+      body: SizedBox.expand(
+        child: Lottie.asset(
+          splash,
+          controller: _controller,
+          animate: false,
+          fit: BoxFit.cover,
+          onLoaded: (composition) {
+            _controller..duration = composition.duration..forward(from: 0.0);
           },
         ),
       ),

@@ -4,6 +4,7 @@ import 'package:centro/core/classes/app_localization.dart';
 import 'package:centro/core/constants/app_colors.dart';
 import 'package:centro/core/constants/app_styles.dart';
 import 'package:centro/core/utils/project_utils/pick_image.dart';
+import 'package:centro/core/utils/responsive/responsive.dart';
 import 'package:centro/features/auth/data/model/sign_in_model.dart';
 import 'package:centro/features/profile/data/model/profile_image_model.dart';
 import 'package:centro/features/profile/data/profile_repository/profile_repository.dart';
@@ -29,6 +30,7 @@ class _PickImageSheetState extends State<PickImageSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = Responsive.isTablet(context);
     return Column(
       children: [
         Row(
@@ -38,11 +40,13 @@ class _PickImageSheetState extends State<PickImageSheet> {
               icon: Icons.image_outlined,
               labelKey: "gallery",
               source: ImageSource.gallery,
+              isTablet: isTablet
             ),
             _buildPickOption(
               icon: Icons.camera_alt_outlined,
               labelKey: "camera",
               source: ImageSource.camera,
+              isTablet: isTablet
             ),
           ],
         ),
@@ -51,7 +55,7 @@ class _PickImageSheetState extends State<PickImageSheet> {
     );
   }
 
-  Widget _buildPickOption({required IconData icon, required String labelKey, required ImageSource source}) {
+  Widget _buildPickOption({required IconData icon, required String labelKey, required ImageSource source,bool? isTablet}) {
     return CreateModel<ProfileImageModel>(
       withValidation: false,
       onTap: () async {},
@@ -73,14 +77,14 @@ class _PickImageSheetState extends State<PickImageSheet> {
       child: Column(
         children: [
           Container(
-            width: 60.w,
-            height: 60.w,
+            width: isTablet! ? 50.w : 60.w,
+            height: isTablet ? 50.w : 60.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: AppColors.primaryColor,
             ),
             child: Center(
-              child: Icon(icon, size: 30, color: AppColors.whiteColor),
+              child: Icon(icon, size: isTablet ? 25.sp : 30, color: AppColors.whiteColor),
             ),
           ),
           SizedBox(height: 10.h),

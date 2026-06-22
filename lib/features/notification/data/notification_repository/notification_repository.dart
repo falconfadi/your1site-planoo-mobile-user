@@ -1,5 +1,7 @@
 import 'package:centro/core/repository/core_repository.dart';
+import 'package:centro/features/notification/data/model/check_new_notifications_model.dart';
 import 'package:centro/features/notification/data/model/notifications_model.dart' hide Result;
+import 'package:centro/features/notification/data/usecase/check_new_notifications_usecase.dart';
 import 'package:centro/features/notification/data/usecase/delete_notification_usecase.dart';
 import 'package:centro/features/notification/data/usecase/notifications_usecase.dart';
 import 'package:centro/features/notification/data/usecase/view_notification_usecase.dart';
@@ -38,6 +40,16 @@ class NotificationRepository extends CoreRepository {
       method: HttpMethod.DELETE,
     );
     return noModelCall(result: result);
+  }
+
+  Future<Result<CheckNewNotificationsModel>> checkNewNotifications({required CheckNewNotificationsParams params}) async {
+    final result = await RemoteDataSource.request(
+        withAuthentication: true,
+        url: checkNewNotificationsUrl,
+        method: HttpMethod.GET,
+        responseStr: 'CheckNewNotificationsResponse',
+        converter: (json) => CheckNewNotificationsResponse.fromJson(json));
+    return call(result: result);
   }
 
 }

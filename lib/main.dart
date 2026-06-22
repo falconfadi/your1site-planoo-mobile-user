@@ -9,17 +9,25 @@ import 'package:centro/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:centro/core/classes/app_localization.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   await AppStorage.init();
   await ScreenUtil.ensureScreenSize();
+
   runApp(const MyApp());
 }
 
@@ -45,7 +53,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
 
   Locale? _locale;
-  final firebaseApi = FirebaseApi();
+  final firebaseApi = FirebaseApi.instance;
 
   void setLocale(Locale locale) {
     setState(() {
@@ -56,11 +64,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    // AppStorage.removeData(key: kAccessToken);
-    // AppStorage.removeData(key: userID);
     firebaseApi.init();
-    firebaseApi.listenToTokenRefresh();
-
     AppStorage.loadLanguage().then((languageCode) {
       setState(() {
         if(AppStorage.getData(key: headerLanguageKey) == null) {

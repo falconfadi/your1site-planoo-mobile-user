@@ -2,10 +2,12 @@ import 'package:centro/core/classes/app_localization.dart';
 import 'package:centro/core/constants/app_colors.dart';
 import 'package:centro/core/constants/app_styles.dart';
 import 'package:centro/core/constants/enum/main_tabs.dart';
+import 'package:centro/core/utils/responsive/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TabsWidget extends StatelessWidget {
+
   final int selectedTab;
   final bool inCenter;
   final ValueChanged<int> onTabChanged;
@@ -19,6 +21,7 @@ class TabsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = Responsive.isTablet(context);
     final tabs = ListView.builder(
       shrinkWrap: true,
       scrollDirection: Axis.horizontal,
@@ -42,7 +45,7 @@ class TabsWidget extends StatelessWidget {
     );
     return SizedBox(
       width: 1.sw,
-      height: 35.h,
+      height: isTablet ? 50.h : 35.h,
       child: inCenter ? Center(child: tabs) : tabs,
     );
   }

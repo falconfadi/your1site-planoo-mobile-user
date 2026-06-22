@@ -32,8 +32,8 @@ class CategoryModel extends BaseModel {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    if (this.categoriesList != null) {
-      data['categories'] = this.categoriesList!.map((v) => v.toJson()).toList();
+    if (categoriesList != null) {
+      data['categories'] = categoriesList!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -42,18 +42,21 @@ class CategoryModel extends BaseModel {
 class CategoryInfoModel {
   int? id;
   String? name;
+  String? icon;
 
-  CategoryInfoModel({this.id, this.name});
+  CategoryInfoModel({this.id, this.name,this.icon});
 
   CategoryInfoModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
+    icon = json['icon'];
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'name': name,
+      'icon': icon,
     };
   }
 }

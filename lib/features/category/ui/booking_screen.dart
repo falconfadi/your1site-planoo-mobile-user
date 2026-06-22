@@ -12,17 +12,18 @@ import 'package:centro/core/ui/widgets/custom_button.dart';
 import 'package:centro/core/ui/widgets/custom_text_field.dart';
 import 'package:centro/core/utils/Navigation/Navigation.dart';
 import 'package:centro/core/utils/extension/text_field_ext.dart';
+import 'package:centro/core/utils/responsive/responsive.dart';
 import 'package:centro/core/utils/validators/convert_date_time.dart';
 import 'package:centro/features/appointment/data/appointment_repository/appointment_repository.dart';
-import 'package:centro/features/appointment/data/model/accepted_appointments_model.dart';
-import 'package:centro/features/appointment/data/model/appointment_details_model.dart';
-import 'package:centro/features/appointment/data/usecase/accepted_appointments_usecase.dart';
-import 'package:centro/features/category/data/model/activity/book_activity_model.dart';
-import 'package:centro/features/category/data/model/activity/slot_details_model.dart';
+import 'package:centro/features/appointment/data/model/court/court_appointments_model.dart';
+import 'package:centro/features/appointment/data/model/court/court_appointment_details_model.dart';
+import 'package:centro/features/appointment/data/usecase/court/court_appointments_usecase.dart';
+import 'package:centro/features/category/data/model/court/book_court_model.dart';
+import 'package:centro/features/category/data/model/court/slot_details_model.dart';
 import 'package:centro/features/category/data/category_repository/category_repository.dart';
-import 'package:centro/features/category/data/model/activity/activity_details_model.dart';
-import 'package:centro/features/category/data/model/activity/slots_model.dart';
-import 'package:centro/features/category/data/usecase/activity/check_activity_usecase.dart';
+import 'package:centro/features/category/data/model/court/court_details_model.dart';
+import 'package:centro/features/category/data/model/court/slots_model.dart';
+import 'package:centro/features/category/data/usecase/court/check_court_usecase.dart';
 import 'package:centro/features/category/ui/confirm_booking_screen.dart';
 import 'package:centro/core/ui/shared_widgets/calender_date_picker_widget.dart';
 import 'package:flutter/material.dart';
@@ -32,9 +33,9 @@ import 'package:intl/intl.dart';
 
 class BookingScreen extends StatefulWidget {
 
-  final ActivityDetailsModel activity;
+  final CourtDetailsModel court;
 
-  const BookingScreen({super.key,required this.activity});
+  const BookingScreen({super.key,required this.court});
 
   @override
   State<BookingScreen> createState() => _BookingScreenState();
@@ -52,14 +53,14 @@ class _BookingScreenState extends State<BookingScreen> with FormStateMinxin {
   SlotModel? slotModel;
   List<SlotDetailsModel> slots = [];
   int? selectedSlot;
-  final eventsMap = <DateTime, List<AppointmentDetailsModel>>{};
+  final eventsMap = <DateTime, List<CourtAppointmentDetailsModel>>{};
 
   @override
   void initState() {
     super.initState();
     weekdayToDayId = {};
     allowedWeekdays = {};
-    for (var workday in widget.activity.workdaysList!) {
+    for (var workday in widget.court.workdaysList!) {
       final weekday = _mapDayToWeekday(workday.day!);
       weekdayToDayId[weekday] = workday.id!;
       allowedWeekdays.add(weekday);
@@ -82,12 +83,13 @@ class _BookingScreenState extends State<BookingScreen> with FormStateMinxin {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = Responsive.isTablet(context);
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
       appBar: CustomHeader(title: AppLocalization.of(context).translate("book_an_appointment"),isNavBar: false,
         leading: InkWell(
           onTap: () => Navigation.pop(),
-          child: Icon(Icons.close),
+          child: Icon(Icons.close,size: isTablet ? 20.sp : null),
         ),
       ),
       body: SingleChildScrollView(
@@ -96,13 +98,13 @@ class _BookingScreenState extends State<BookingScreen> with FormStateMinxin {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 10.h),
-            GetModel<AcceptedAppointmentsModel>(
+            GetModel<CourtAppointmentsModel>(
               useCaseCallBack: () {
-                return AcceptedAppointmentsUseCase(AppointmentRepository()).call(
-                    params: AcceptedAppointmentsParams(ownerType: "activity"));
+                return CourtAppointmentsUseCase(AppointmentRepository()).call(
+                    params: CourtAppointmentsParams());
               },
               onError: (errorMessage) {
-                return AcceptedAppointmentsModel(appointmentsList: []);
+                return CourtAppointmentsModel(appointmentsList: []);
               },
               onSuccess: (result) {
                 for (var appointment in result.appointmentsList ?? []) {
@@ -212,12 +214,12 @@ class _BookingScreenState extends State<BookingScreen> with FormStateMinxin {
                 });
               },
               useCaseCallBack: (model) {
-                return CheckActivityUseCase(CategoryRepository()).call(
-                    params: CheckActivityParams(
-                      activityId: widget.activity.iD!,
+                return CheckCourtUseCase(CategoryRepository()).call(
+                    params: CheckCourtParams(
+                      courtId: widget.court.iD!,
                       dayId: dayId!,
                       date: convertDate(date: selectedDate.toString(),format: "yyyy-MM-dd"),
-                      sessionDuration: widget.activity.sessionDuration!,
+                      sessionDuration: widget.court.sessionDuration!,
                     )
                 );
               },
@@ -299,9 +301,9 @@ class _BookingScreenState extends State<BookingScreen> with FormStateMinxin {
                         function: () {
                           if(selectedSlot != null) {
                             Navigation.push(ConfirmBookingScreen(
-                              type: AppLocalization.of(context).translate("activity"),
-                              activity: widget.activity,
-                              bookActivityModel: BookActivityModel(
+                              type: AppLocalization.of(context).translate("court"),
+                              court: widget.court,
+                              bookCourtModel: BookCourtModel(
                                   dayId: dayId!,
                                   code: slotModel!.code.toString(),
                                   date: selectedDate!,

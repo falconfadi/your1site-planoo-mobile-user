@@ -1,5 +1,6 @@
 import 'package:centro/core/data_source/model.dart';
 import 'package:centro/core/responses/api_response.dart';
+import 'package:centro/features/auth/data/model/customer_model.dart';
 import 'package:centro/features/category/data/model/category_model.dart';
 import 'package:centro/features/category/data/model/review_model.dart';
 import 'package:centro/features/home/data/model/day_model.dart';
@@ -29,10 +30,12 @@ class CourseDetailsModel extends BaseModel {
   bool? isActive;
   int? price;
   bool? isFull;
-  int? sessionDuration;
   int? courseDuration;
   int? capacity;
   int? cancellationFee;
+  String? startDate;
+  String? status;
+  CustomerModel? customer;
   int? rate;
   bool? isFavorite;
   bool? isAttending;
@@ -50,10 +53,12 @@ class CourseDetailsModel extends BaseModel {
     this.isActive,
     this.price,
     this.isFull,
-    this.sessionDuration,
     this.courseDuration,
     this.capacity,
     this.cancellationFee,
+    this.startDate,
+    this.status,
+    this.customer,
     this.rate,
     this.isFavorite,
     this.isAttending,
@@ -72,10 +77,12 @@ class CourseDetailsModel extends BaseModel {
     isActive = json['is_active'];
     price = json['price'];
     isFull = json['is_full'];
-    sessionDuration = json['session_duration'];
     courseDuration = json['course_duration'];
     capacity = json['capacity'];
     cancellationFee = json['cancellation_fee'];
+    startDate = json['start_date'];
+    status = json['status'];
+    customer = json['customer'] != null ? CustomerModel.fromJson(json['customer']) : null;
     rate = json['rate'];
     isFavorite = json['is_favorite'];
     isAttending = json['is_attending'];
@@ -117,10 +124,14 @@ class CourseDetailsModel extends BaseModel {
     data['is_active'] = isActive;
     data['price'] = price;
     data['is_full'] = isFull;
-    data['session_duration'] = sessionDuration;
     data['course_duration'] = courseDuration;
     data['capacity'] = capacity;
     data['cancellation_fee'] = cancellationFee;
+    data['start_date'] = startDate;
+    data['status'] = status;
+    if (customer != null) {
+      data['customer'] = customer!.toJson();
+    }
     data['rate'] = rate;
     data['is_favorite'] = isFavorite;
     data['is_attending'] = isAttending;

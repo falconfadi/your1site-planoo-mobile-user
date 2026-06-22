@@ -1,3 +1,4 @@
+import 'package:centro/core/utils/responsive/responsive.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
@@ -107,6 +108,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = Responsive.isTablet(context);
     return Column(
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,14 +173,18 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 borderRadius: BorderRadius.circular(widget.borderRadius ?? 10.r),
                 borderSide: const BorderSide(width: 1,color: AppColors.redColor),
               ),
-              prefixIcon: widget.prefixIcon != null ? Icon(widget.prefixIcon!,
-                  color: widget.prefixIconColor ?? AppColors.grayColor, size: 20) : null,
               isCollapsed: true,
-              contentPadding: EdgeInsets.only(left: 15.w,right: 15.w,top: 15.w,bottom: 8.w),
+              contentPadding: EdgeInsets.only(
+                  left: 15.w,right: 10.w,
+                  top: isTablet ? 18.h : 15.h,
+                  bottom: 8.h
+              ),
+              prefixIcon: widget.prefixIcon != null ? Icon(widget.prefixIcon!,
+                  color: widget.prefixIconColor ?? AppColors.grayColor, size: isTablet ? 40 : 20) : null,
               suffixIcon: widget.suffixIcon != null ? IconButton(icon: SvgPicture.asset(widget.suffixIcon!,
-                  color: widget.suffixIconColor ?? AppColors.lightGrayColor, width: 25),
+                  color: widget.suffixIconColor ?? AppColors.lightGrayColor, width: isTablet ? 40 : 25),
                   onPressed: widget.onSuffixTap) : widget.isPassword == true ? IconButton(icon: SvgPicture.asset(showPassword == false ? unVisiblePassword : visiblePassword,
-                color: AppColors.blackColor, width: 25),
+                color: AppColors.blackColor, width: isTablet ? 40 : 25),
               onPressed: () {setState(() => showPassword = !showPassword);}) : null ,
             ),
           ),

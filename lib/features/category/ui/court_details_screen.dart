@@ -2,6 +2,7 @@ import 'package:centro/core/boilerplate/create_model/widgets/create_model.dart';
 import 'package:centro/core/boilerplate/get_model/cubits/get_model_cubit.dart';
 import 'package:centro/core/boilerplate/get_model/widgets/get_model.dart';
 import 'package:centro/core/classes/app_localization.dart';
+import 'package:centro/core/classes/app_storage.dart';
 import 'package:centro/core/constants/app_colors.dart';
 import 'package:centro/core/constants/app_images.dart';
 import 'package:centro/core/constants/app_styles.dart';
@@ -9,59 +10,62 @@ import 'package:centro/core/ui/shared_widgets/custom_header.dart';
 import 'package:centro/core/ui/shared_widgets/custom_rating_bar.dart';
 import 'package:centro/core/ui/shared_widgets/expandable_text_widget.dart';
 import 'package:centro/core/ui/shared_widgets/icon_text_widget.dart';
-import 'package:centro/core/ui/widgets/cached_image.dart';
 import 'package:centro/core/ui/widgets/custom_button.dart';
 import 'package:centro/core/ui/widgets/custom_sheet.dart';
 import 'package:centro/core/utils/Navigation/Navigation.dart';
 import 'package:centro/core/utils/project_utils/open_url.dart';
 import 'package:centro/core/utils/project_utils/string_utils.dart';
+import 'package:centro/core/utils/responsive/responsive.dart';
 import 'package:centro/features/category/data/category_repository/category_repository.dart';
-import 'package:centro/features/category/data/model/activity/activity_details_model.dart';
+import 'package:centro/features/category/data/model/court/court_details_model.dart';
 import 'package:centro/features/category/data/model/review_model.dart';
-import 'package:centro/features/category/data/usecase/activity/activity_details_usecase.dart';
+import 'package:centro/features/category/data/usecase/court/court_details_usecase.dart';
 import 'package:centro/features/category/data/usecase/reviews_usecase.dart';
 import 'package:centro/features/category/ui/booking_screen.dart';
 import 'package:centro/features/category/widget/add_review_sheet.dart';
+import 'package:centro/features/category/widget/facilities_preview_widget.dart';
 import 'package:centro/features/category/widget/images_slider_widget.dart';
 import 'package:centro/features/category/widget/reviews_sheet.dart';
+import 'package:centro/features/category/widget/workdays_preview_widget.dart';
 import 'package:centro/features/favorite/data/favorite_repository/favorite_repository.dart';
 import 'package:centro/features/favorite/data/usecase/add_favorite_usecase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class ActivityDetailsScreen extends StatefulWidget {
+class CourtDetailsScreen extends StatefulWidget {
 
-  final int activityId;
+  final int courtId;
 
-  const ActivityDetailsScreen({super.key,required this.activityId});
+  const CourtDetailsScreen({super.key,required this.courtId});
 
   @override
-  State<ActivityDetailsScreen> createState() => _ActivityDetailsScreenState();
+  State<CourtDetailsScreen> createState() => _CourtDetailsScreenState();
 }
 
-class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
+class _CourtDetailsScreenState extends State<CourtDetailsScreen> {
 
-  GetModelCubit<ActivityDetailsModel>? activityCubit;
+  GetModelCubit<CourtDetailsModel>? courtCubit;
   GetModelCubit<ReviewModel>? reviewCubit;
-  ActivityDetailsModel? activity;
+  CourtDetailsModel? court;
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = Responsive.isTablet(context);
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
       appBar: CustomHeader(title: "",isNavBar: false),
-      body: GetModel<ActivityDetailsModel>(
+      body: GetModel<CourtDetailsModel>(
         onCubitCreated: (cubit) {
-          activityCubit = cubit as GetModelCubit<ActivityDetailsModel>;
+          courtCubit = cubit as GetModelCubit<CourtDetailsModel>;
         },
         useCaseCallBack: () {
-          return ActivityDetailsUseCase(CategoryRepository()).call(
-              params: ActivityDetailsParams(activityId: widget.activityId));
+          return CourtDetailsUseCase(CategoryRepository()).call(
+              params: CourtDetailsParams(courtId: widget.courtId));
         },
         onSuccess: (result) {
           setState(() {
-            activity = result;
+            court = result;
           });
         },
         modelBuilder: (model) => SingleChildScrollView(
@@ -85,7 +89,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
                         withValidation: false,
                           onTap: () async {},
                           onSuccess: (result) {
-                            activityCubit!.getModel(silent: true);
+                            courtCubit!.getModel(silent: true);
                           },
                           useCaseCallBack: (data) {
                             if(model.isFavorite == false) {
@@ -123,7 +127,7 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Expanded(
-                          child: Text(AppLocalization.of(context).translate("activity"),
+                          child: Text(AppLocalization.of(context).translate("court"),
                               style: AppTheme.labelLarge.copyWith(fontSize: 15.sp,color: AppColors.purpleColor)),
                         ),
                         SizedBox(width: 10.w),
@@ -138,13 +142,13 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
                         Expanded(
                           child: InkWell(
                             onTap: () {
-                              String activityUrl = 'https://www.google.com/maps/search/?api=1&query=${model.location!.lat!},${model.location!.long!}';
-                              OpenUrl.launchUrls(Uri.parse(activityUrl));
+                              String courtUrl = 'https://www.google.com/maps/search/?api=1&query=${model.location!.lat!},${model.location!.long!}';
+                              OpenUrl.launchUrls(Uri.parse(courtUrl));
                             },
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                SvgPicture.asset(location,color: AppColors.mediumGrayColor),
+                                SvgPicture.asset(location,color: AppColors.mediumGrayColor,width: 24.w),
                                 Text(AppLocalization.of(context).translate("view_map"),
                                     style: AppTheme.titleMedium.copyWith(color: AppColors.mediumGrayColor)
                                 ),
@@ -174,7 +178,9 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
                                     reviewCubit = cubit as GetModelCubit<ReviewModel>;
                                   },
                                   onError: (error) {
-                                    if (error.contains("Not found")) {
+                                    if ((AppStorage.languageCode == "en" && error.contains("reviews not found")) ||
+                                        AppStorage.languageCode == "ar" && error.contains("التعليقات غير موجود")
+                                    ) {
                                       return ReviewModel(reviewsList: []);
                                     }
                                     return null;
@@ -187,6 +193,8 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
                                             header: Text(AppLocalization.of(context).translate("reviews"),
                                               style: AppTheme.titleLarge.copyWith(fontSize: 18.sp),
                                             ),
+                                            padding: 30.w,
+                                            context: context,
                                             action: InkWell(
                                                 onTap: () {
                                                   CustomSheet.show(
@@ -196,17 +204,14 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
                                                       context: context,
                                                       child: AddReviewSheet(ownerType: "activity", ownerId: model.iD!,
                                                         onRefresh: () async {
-                                                          // todo check later
                                                           reviewCubit!.getModel(silent: true);
-                                                          activityCubit!.getModel(silent: true);
+                                                          courtCubit!.getModel(silent: true);
                                                         },
                                                       )
                                                   );
                                                 },
-                                                child: Icon(Icons.add_circle_outline_outlined,color: AppColors.primaryColor)),
-                                            padding: 30.w,
-                                            context: context,
-                                            height: reviewModel.reviewsList!.isEmpty ? null :  1.sh * 0.9.h,
+                                                child: Icon(Icons.add_circle_outline_outlined,color: AppColors.primaryColor, size: isTablet ? 25.sp : null)),
+                                            height: reviewModel.reviewsList!.isEmpty ? null : 1.sh * 0.9,
                                             child: ReviewsSheet(reviews: reviewModel.reviewsList)
                                         );
                                       },
@@ -228,50 +233,30 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
                               iconSize: 20.w,
                               iconColor: AppColors.gray3Color,
                               text: model.sessionDuration!.toString() + AppLocalization.of(context).translate("minute"),
-                              maxline: 1,
+                              maxLine: 1,
                               textStyle: AppTheme.titleMedium.copyWith(color: AppColors.gray3Color,overflow: TextOverflow.ellipsis)),
                         )
                       ],
                     ),
-                    model.facilitiesList!.isEmpty ? Center() :
-                    SizedBox(
-                      height: 120.h,
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        itemCount: model.facilitiesList!.length,
-                        itemBuilder: (context,index) {
-                          return Container(
-                            margin: EdgeInsets.symmetric(horizontal: 5.w),
-                            padding: EdgeInsets.symmetric(vertical: 10.h,horizontal: 10.w),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Flexible(child: CachedImage(width: 50.w,height: 50.w,imageUrl: model.facilitiesList![index].icon!, fit: BoxFit.cover)),
-                                SizedBox(height: 10.h),
-                                Flexible(child: Text(model.facilitiesList![index].name!,style: AppTheme.headlineSmall)),
-                              ],
-                            ),
-                          );
-                        },
-                      )
-                    ),
-                    SizedBox(height: model.facilitiesList!.isEmpty ? 0 : 10.h),
+                    SizedBox(height: 15.h),
                     ExpandableTextWidget(
                       text: model.description!,
                       style: AppTheme.labelLarge,
                     ),
+                    SizedBox(height: 15.h),
+                    WorkdaysPreviewWidget(workdaysList: model.workdaysList!),
+                    SizedBox(height: model.facilitiesList!.isEmpty ? 0 : 15.h),
+                    model.facilitiesList!.isEmpty ? Center() :
+                    FacilitiesPreviewWidget(facilitiesList: model.facilitiesList!),
                   ],
                 ),
               ),
-              SizedBox(height: 10.h),
+              SizedBox(height: 20.h),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: activity == null
+      bottomNavigationBar: court == null
           ? const SizedBox.shrink() : Container(
         width: 1.sw,
         padding: EdgeInsets.symmetric(horizontal: 20.w,vertical: 15.h),
@@ -286,14 +271,14 @@ class _ActivityDetailsScreenState extends State<ActivityDetailsScreen> {
           ],
         ),
         child: CustomButton(
-          backgroundColor: activity!.isActive == false ?
+          backgroundColor: court!.isActive == false ?
           AppColors.grayColor : AppColors.primaryColor,
           borderRadius: 30.r,
           buttonName: AppLocalization.of(context).translate("book_now"),
           function: () {
-            if(activity != null) {
-              if(activity!.isActive == true) {
-                Navigation.push(BookingScreen(activity: activity!));
+            if(court != null) {
+              if(court!.isActive == true) {
+                Navigation.push(BookingScreen(court: court!));
               }
             }
           },

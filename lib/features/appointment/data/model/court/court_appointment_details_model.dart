@@ -4,21 +4,21 @@ import 'package:centro/features/auth/data/model/customer_model.dart';
 import 'package:centro/features/category/data/model/category_model.dart';
 import 'package:centro/features/profile/data/model/profile_image_model.dart';
 
-class AppointmentDetailsResponse extends ApiResponse<AppointmentDetailsModel> {
-  AppointmentDetailsResponse({required super.errors, required super.message, required super.data});
+class CourtAppointmentDetailsResponse extends ApiResponse<CourtAppointmentDetailsModel> {
+  CourtAppointmentDetailsResponse({required super.errors, required super.message, required super.data});
 
-  factory AppointmentDetailsResponse.fromJson(Map<String, dynamic> json) {
-    return AppointmentDetailsResponse(
+  factory CourtAppointmentDetailsResponse.fromJson(Map<String, dynamic> json) {
+    return CourtAppointmentDetailsResponse(
       errors: json["payload"]["errors"] != null
-          ? AppointmentDetailsModel.fromJson(json["payload"]["errors"])
+          ? CourtAppointmentDetailsModel.fromJson(json["payload"]["errors"])
           : null,
       message: json["message"],
-      data: AppointmentDetailsModel.fromJson(json["payload"]["appointment"]),
+      data: CourtAppointmentDetailsModel.fromJson(json["payload"]["appointment"]),
     );
   }
 }
 
-class AppointmentDetailsModel extends BaseModel {
+class CourtAppointmentDetailsModel extends BaseModel {
 
   int? iD;
   String? date;
@@ -31,7 +31,7 @@ class AppointmentDetailsModel extends BaseModel {
   HolderModel? holder;
   CustomerModel? customer;
 
-  AppointmentDetailsModel({
+  CourtAppointmentDetailsModel({
     this.iD,
     this.date,
     this.time,
@@ -44,7 +44,7 @@ class AppointmentDetailsModel extends BaseModel {
     this.customer
   });
 
-  AppointmentDetailsModel.fromJson(Map<String, dynamic> json) {
+  CourtAppointmentDetailsModel.fromJson(Map<String, dynamic> json) {
     iD = json['id'];
     date = json['date'];
     time = json['time'];

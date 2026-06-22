@@ -69,7 +69,7 @@ class _FilterSheetState extends State<FilterSheet> {
             );
           },
         ),
-        SizedBox(height: 20.h),
+        SizedBox(height: 30.h),
       ],
     );
   }
@@ -90,7 +90,7 @@ class _FilterSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10.w),
+      padding: EdgeInsets.symmetric(horizontal: 5.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,

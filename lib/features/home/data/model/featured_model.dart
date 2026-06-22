@@ -1,6 +1,6 @@
 import 'package:centro/core/data_source/model.dart';
 import 'package:centro/core/responses/api_response.dart';
-import 'package:centro/features/category/data/model/activity/activity_details_model.dart';
+import 'package:centro/features/category/data/model/court/court_details_model.dart';
 import 'package:centro/features/category/data/model/course/course_details_model.dart';
 import 'package:centro/features/category/data/model/event/event_details_model.dart';
 
@@ -40,21 +40,21 @@ class FeaturedModel extends BaseModel {
 
 class FeaturedInfoModel {
 
-  List<ActivityDetailsModel>? activities;
+  List<CourtDetailsModel>? courts;
   List<CourseDetailsModel>? courses;
   List<EventDetailsModel>? events;
 
   FeaturedInfoModel({
-    this.activities,
+    this.courts,
     this.courses,
     this.events
   });
 
   FeaturedInfoModel.fromJson(Map<String, dynamic> json) {
     if (json['activity'] != null) {
-      activities = <ActivityDetailsModel>[];
+      courts = <CourtDetailsModel>[];
       json['activity'].forEach((v) {
-        activities!.add(ActivityDetailsModel.fromJson(v));
+        courts!.add(CourtDetailsModel.fromJson(v));
       });
     }
     if (json['course'] != null) {
@@ -73,8 +73,8 @@ class FeaturedInfoModel {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    if (activities != null) {
-      data['activity'] = activities!.map((v) => v.toJson()).toList();
+    if (courts != null) {
+      data['activity'] = courts!.map((v) => v.toJson()).toList();
     }
     if (courses != null) {
       data['course'] = courses!.map((v) => v.toJson()).toList();

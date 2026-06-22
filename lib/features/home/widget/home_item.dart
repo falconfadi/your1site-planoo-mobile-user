@@ -5,10 +5,10 @@ import 'package:centro/core/constants/app_styles.dart';
 import 'package:centro/core/ui/shared_widgets/icon_text_widget.dart';
 import 'package:centro/core/ui/widgets/cached_image.dart';
 import 'package:centro/core/utils/Navigation/Navigation.dart';
-import 'package:centro/features/category/data/model/activity/activity_details_model.dart';
+import 'package:centro/features/category/data/model/court/court_details_model.dart';
 import 'package:centro/features/category/data/model/course/course_details_model.dart';
 import 'package:centro/features/category/data/model/event/event_details_model.dart';
-import 'package:centro/features/category/ui/activity_details_screen.dart';
+import 'package:centro/features/category/ui/court_details_screen.dart';
 import 'package:centro/features/category/ui/course_details_screen.dart';
 import 'package:centro/features/category/ui/event_details_screen.dart';
 import 'package:flutter/material.dart';
@@ -16,12 +16,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class HomeItem extends StatefulWidget {
 
-  ActivityDetailsModel? activity;
+  CourtDetailsModel? court;
   CourseDetailsModel? course;
   EventDetailsModel? event;
 
   HomeItem({super.key,
-    this.activity,
+    this.court,
     this.course,
     this.event,
   });
@@ -33,7 +33,7 @@ class HomeItem extends StatefulWidget {
 class _HomeItemState extends State<HomeItem> {
 
   dynamic get item {
-    if (widget.activity != null) return widget.activity!;
+    if (widget.court != null) return widget.court!;
     if (widget.course != null) return widget.course!;
     if (widget.event != null) return widget.event!;
     return null;
@@ -43,9 +43,9 @@ class _HomeItemState extends State<HomeItem> {
     if (widget.event != null) {
       return "${widget.event!.eventDuration!} ${AppLocalization.of(context).translate("day")}";
     } else if (widget.course != null) {
-      return  "${widget.course!.sessionDuration!} ${AppLocalization.of(context).translate("minute")}"" - ""${widget.course!.courseDuration!} ${AppLocalization.of(context).translate("day")}";
+      return "${widget.course!.courseDuration!} ${AppLocalization.of(context).translate("day")}";
     } else {
-      return "${widget.activity!.sessionDuration!} ${AppLocalization.of(context).translate("minute")}";
+      return "${widget.court!.sessionDuration!} ${AppLocalization.of(context).translate("minute")}";
     }
   }
 
@@ -54,8 +54,8 @@ class _HomeItemState extends State<HomeItem> {
     final data = item;
     return InkWell(
       onTap: () {
-        if (widget.activity != null) {
-          Navigation.push(ActivityDetailsScreen(activityId: data.iD));
+        if (widget.court != null) {
+          Navigation.push(CourtDetailsScreen(courtId: data.iD));
           return;
         }
         if (widget.course != null) {
@@ -69,8 +69,8 @@ class _HomeItemState extends State<HomeItem> {
       },
       child: Container(
         width: 1.sw,
-        height: 102.h,
         margin: EdgeInsets.only(bottom: 15.h),
+        padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
         decoration:BoxDecoration(
             color: AppColors.whiteColor,
             borderRadius: BorderRadius.circular(10.r)
@@ -80,59 +80,41 @@ class _HomeItemState extends State<HomeItem> {
           children: [
             Expanded(
               flex: 1,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 5.w),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(15.r),
-                    bottomLeft: Radius.circular(15.r),
-                  ),
-                ),
-                child: CachedImage(
-                  height: 90.h,
-                  imageUrl: data.mediaList!.isEmpty ? "" : data.mediaList!.first.url!,
-                  fit: BoxFit.fill,
-                  borderRadius: 10.r,
-                ),
+              child: CachedImage(
+                height: 1.sh * 0.12,
+                imageUrl: data.mediaList!.isEmpty ? "" : data.mediaList!.first.url!,
+                fit: BoxFit.cover,
+                borderRadius: 10.r,
+                borderWidth: 1,
+                borderColor: AppColors.lightGrayColor,
               ),
             ),
+            SizedBox(width: 10.w),
             Expanded(
               flex: 3,
-              child: Container(
-                width: 1.sw,
-                padding: EdgeInsets.symmetric(horizontal: 15.w,vertical: 10.h),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(15.r),
-                    bottomRight: Radius.circular(15.r),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(data.name!, style: AppTheme.bodyMedium.copyWith(color: AppColors.darkGrayColor),maxLines: 1,overflow: TextOverflow.ellipsis),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(child: Text(data.category.name!, style: AppTheme.labelMedium.copyWith(color: AppColors.mediumGrayColor),maxLines: 1,overflow: TextOverflow.ellipsis)),
+                      Expanded(child: IconTextWidget(
+                        icon: time,
+                        iconSize: 15.w,
+                        iconColor: AppColors.primaryColor,
+                        text: itemDuration, maxLine: 1,
+                        textStyle: AppTheme.labelMedium.copyWith(color: AppColors.mediumGrayColor,overflow: TextOverflow.ellipsis)
+                      ),
+                      )
+                    ],
                   ),
-                  color: AppColors.whiteColor,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(data.name!, style: AppTheme.bodyMedium.copyWith(color: AppColors.darkGrayColor),maxLines: 1,overflow: TextOverflow.ellipsis),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(child: Text(data.category.name!, style: AppTheme.labelMedium.copyWith(color: AppColors.mediumGrayColor),maxLines: 1,overflow: TextOverflow.ellipsis)),
-                        Expanded(child: IconTextWidget(
-                          icon: time,
-                          iconSize: 15.w,
-                          iconColor: AppColors.primaryColor,
-                          text: itemDuration,
-                          maxline: 1,
-                          textStyle: AppTheme.labelMedium.copyWith(color: AppColors.mediumGrayColor,overflow: TextOverflow.ellipsis)
-                        ),
-                        )
-                      ],
-                    ),
-                    Text(AppLocalization.of(context).translate(
-                        widget.activity != null ? "activity" : widget.course != null ? "course" : "event"),
-                        style: AppTheme.bodySmall.copyWith(color: AppColors.purpleColor)),
-                  ],
-                ),
+                  Text(AppLocalization.of(context).translate(
+                      widget.court != null ? "court" : widget.course != null ? "course" : "event"),
+                      style: AppTheme.bodySmall.copyWith(color: AppColors.purpleColor)),
+                ],
               ),
             )
           ],

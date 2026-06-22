@@ -8,13 +8,14 @@ import 'package:centro/core/ui/shared_widgets/custom_info_widget.dart';
 import 'package:centro/core/ui/widgets/cached_image.dart';
 import 'package:centro/core/ui/widgets/custom_button.dart';
 import 'package:centro/core/utils/Navigation/Navigation.dart';
+import 'package:centro/core/utils/responsive/responsive.dart';
 import 'package:centro/core/utils/validators/convert_date_time.dart';
-import 'package:centro/features/category/data/model/activity/book_activity_model.dart';
+import 'package:centro/features/category/data/model/court/book_court_model.dart';
 import 'package:centro/features/category/data/category_repository/category_repository.dart';
-import 'package:centro/features/category/data/model/activity/activity_details_model.dart';
+import 'package:centro/features/category/data/model/court/court_details_model.dart';
 import 'package:centro/features/category/data/model/course/course_details_model.dart';
 import 'package:centro/features/category/data/model/event/event_details_model.dart';
-import 'package:centro/features/category/data/usecase/activity/book_activity_usecase.dart';
+import 'package:centro/features/category/data/usecase/court/book_court_usecase.dart';
 import 'package:centro/features/category/data/usecase/course/attend_course_usecase.dart';
 import 'package:centro/features/category/data/usecase/event/attend_event_usecase.dart';
 import 'package:flutter/material.dart';
@@ -23,8 +24,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class ConfirmBookingScreen extends StatefulWidget {
 
   String type;
-  ActivityDetailsModel? activity;
-  BookActivityModel? bookActivityModel;
+  CourtDetailsModel? court;
+  BookCourtModel? bookCourtModel;
   CourseDetailsModel? course;
   EventDetailsModel? event;
   VoidCallback? onRefresh;
@@ -32,8 +33,8 @@ class ConfirmBookingScreen extends StatefulWidget {
   ConfirmBookingScreen({
     super.key,
     required this.type,
-    this.activity,
-    this.bookActivityModel,
+    this.court,
+    this.bookCourtModel,
     this.course,
     this.event,
     this.onRefresh
@@ -46,7 +47,7 @@ class ConfirmBookingScreen extends StatefulWidget {
 class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
 
   dynamic get item {
-    if (widget.activity != null) return widget.activity!;
+    if (widget.court != null) return widget.court!;
     if (widget.course != null) return widget.course!;
     if (widget.event != null) return widget.event!;
     return null;
@@ -54,6 +55,7 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = Responsive.isTablet(context);
     final data = item;
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
@@ -62,7 +64,7 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
           onTap: () {
             Navigation.pop();
           },
-          child: Icon(Icons.close),
+          child: Icon(Icons.close,size: isTablet ? 20.sp : null),
         ),
       ),
       body: SingleChildScrollView(
@@ -88,10 +90,10 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
               ],
             ),
             SizedBox(height: 10.h),
-            widget.activity != null ? Column(
+            widget.court != null ? Column(
                 children: [
-                  Text(convertDate(date: widget.bookActivityModel!.date.toString(),format: "EEEE MMMM"), textAlign: TextAlign.center,style: AppTheme.headlineMedium.copyWith(fontSize: 20.sp,color: AppColors.mediumGrayColor.withOpacity(0.5))),
-                  Text(convertDate(date: widget.bookActivityModel!.date.toString(),format: "dd"), textAlign: TextAlign.center,style: AppTheme.headlineMedium.copyWith(fontSize: 100.sp,color: AppColors.mediumGrayColor.withOpacity(0.5))),
+                  Text(convertDate(date: widget.bookCourtModel!.date.toString(),format: "EEEE MMMM"), textAlign: TextAlign.center,style: AppTheme.headlineMedium.copyWith(fontSize: 20.sp,color: AppColors.mediumGrayColor.withOpacity(0.5))),
+                  Text(convertDate(date: widget.bookCourtModel!.date.toString(),format: "dd"), textAlign: TextAlign.center,style: AppTheme.headlineMedium.copyWith(fontSize: 100.sp,color: AppColors.mediumGrayColor.withOpacity(0.5))),
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 10.w,vertical: 5.h),
                     decoration: BoxDecoration(
@@ -100,7 +102,7 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
                     ),
                     child: Padding(
                       padding: EdgeInsets.only(top: 5.h),
-                      child: Text("${widget.bookActivityModel!.slots![widget.bookActivityModel!.slotIndex!].startTime} - ${widget.bookActivityModel!.slots![widget.bookActivityModel!.slotIndex!].endTime}", textAlign: TextAlign.center,style: AppTheme.labelLarge),
+                      child: Text("${widget.bookCourtModel!.slots![widget.bookCourtModel!.slotIndex!].startTime} - ${widget.bookCourtModel!.slots![widget.bookCourtModel!.slotIndex!].endTime}", textAlign: TextAlign.center,style: AppTheme.labelLarge),
                     ),
                   ),
                 ],
@@ -180,16 +182,16 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
             CreateModel(
               withValidation: false,
               useCaseCallBack: (data) {
-                if(widget.activity != null) {
-                  return BookActivityUseCase(CategoryRepository()).call(
-                      params: BookActivityParams(
-                        activityId: widget.activity!.iD!,
-                        sessionDuration: widget.activity!.sessionDuration!,
-                        dayId: widget.bookActivityModel!.dayId!,
-                        code: widget.bookActivityModel!.code!,
-                        date: convertDate(date: widget.bookActivityModel!.date.toString(),format: "yyyy-MM-dd"),
-                        time: widget.bookActivityModel!.slots!.isEmpty ? "" : widget.bookActivityModel!.slots![widget.bookActivityModel!.slotIndex!].startTime!,
-                        note: widget.bookActivityModel!.note,
+                if(widget.court != null) {
+                  return BookCourtUseCase(CategoryRepository()).call(
+                      params: BookCourtParams(
+                        courtId: widget.court!.iD!,
+                        sessionDuration: widget.court!.sessionDuration!,
+                        dayId: widget.bookCourtModel!.dayId!,
+                        code: widget.bookCourtModel!.code!,
+                        date: convertDate(date: widget.bookCourtModel!.date.toString(),format: "yyyy-MM-dd"),
+                        time: widget.bookCourtModel!.slots!.isEmpty ? "" : widget.bookCourtModel!.slots![widget.bookCourtModel!.slotIndex!].startTime!,
+                        note: widget.bookCourtModel!.note,
                       ));
                 } else if (widget.course != null) {
                     return AttendCourseUseCase(CategoryRepository()).call(
@@ -203,9 +205,9 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
               },
               onSuccess: (result) async {
                 Navigation.pop();
-                if(widget.activity != null) {
+                if(widget.court != null) {
                   Navigation.pop();
-                  Dialogs.showSnackBar(context: context, message: AppLocalization.of(context).translate("activity_booked_successfully"));
+                  Dialogs.showSnackBar(context: context, message: AppLocalization.of(context).translate("court_booked_successfully"));
                 } else if(widget.course != null || widget.event != null) {
                   widget.onRefresh!.call();
                 }

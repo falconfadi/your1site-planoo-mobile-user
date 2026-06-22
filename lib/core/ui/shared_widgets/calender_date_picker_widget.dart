@@ -1,5 +1,6 @@
 import 'package:centro/core/constants/app_colors.dart';
 import 'package:centro/core/constants/app_styles.dart';
+import 'package:centro/core/utils/responsive/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -23,6 +24,8 @@ Widget calenderDatePickerWidget({
           borderRadius: BorderRadius.circular(10.r),
         ),
         child: TableCalendar(
+          daysOfWeekHeight: Responsive.isTablet(context) ? 80 : 16,
+          rowHeight: Responsive.isTablet(context) ? 80 : 52,
           eventLoader: (day) {
             final normalizedDay = DateTime(day.year, day.month, day.day);
             return eventsMap?[normalizedDay] ?? [];
@@ -33,8 +36,8 @@ Widget calenderDatePickerWidget({
               return Positioned(
                 bottom: 8,
                 child: Container(
-                  width: 10,
-                  height: 8,
+                  width: Responsive.isTablet(context) ? 14 : 10,
+                  height: Responsive.isTablet(context) ? 12 : 8,
                   decoration: BoxDecoration(
                     color: AppColors.redColor,
                     shape: BoxShape.circle,
@@ -91,14 +94,17 @@ Widget calenderDatePickerWidget({
             formatButtonVisible: false,
             titleTextStyle: AppTheme.bodyLarge.copyWith(
               color: AppColors.primaryColor,
+              fontSize: Responsive.isTablet(context) ? 20.sp : null
             ),
             leftChevronIcon: Icon(
               Icons.chevron_left,
               color: AppColors.primaryColor,
+              size: Responsive.isTablet(context) ? 25.sp : null
             ),
             rightChevronIcon: Icon(
               Icons.chevron_right,
               color: AppColors.primaryColor,
+              size: Responsive.isTablet(context) ? 25.sp : null
             ),
           ),
         ),

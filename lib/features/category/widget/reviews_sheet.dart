@@ -10,7 +10,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ReviewsSheet extends StatefulWidget {
 
-
   List<ReviewInfoModel>? reviews;
 
   ReviewsSheet({super.key,this.reviews});
@@ -79,7 +78,8 @@ class _ReviewsSheetState extends State<ReviewsSheet> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 10.h),
+                  SizedBox(height: widget.reviews![index].content == null ? 0 : 10.h),
+                  widget.reviews![index].content == null ? Center() :
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10.w),
                     child: ExpandableTextWidget(
@@ -92,6 +92,7 @@ class _ReviewsSheetState extends State<ReviewsSheet> {
             );
           },
         ),
+        SizedBox(height: 30.h),
       ],
     );
   }

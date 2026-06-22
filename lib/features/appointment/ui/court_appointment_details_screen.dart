@@ -8,128 +8,64 @@ import 'package:centro/core/constants/app_styles.dart';
 import 'package:centro/core/constants/end_point.dart';
 import 'package:centro/core/ui/dialogs/dialogs.dart';
 import 'package:centro/core/ui/shared_widgets/custom_header.dart';
-import 'package:centro/core/ui/shared_widgets/custom_rating_bar.dart';
 import 'package:centro/core/ui/shared_widgets/icon_text_widget.dart';
 import 'package:centro/core/utils/Navigation/Navigation.dart';
 import 'package:centro/core/utils/validators/convert_date_time.dart';
 import 'package:centro/features/appointment/data/appointment_repository/appointment_repository.dart';
-import 'package:centro/features/appointment/data/model/appointment_details_model.dart';
-import 'package:centro/features/appointment/data/usecase/appointment_details_usecase.dart';
-import 'package:centro/features/appointment/data/usecase/cancel_activity_appointment_usecase.dart';
+import 'package:centro/features/appointment/data/model/court/court_appointment_details_model.dart';
+import 'package:centro/features/appointment/data/usecase/court/court_appointment_details_usecase.dart';
+import 'package:centro/features/appointment/data/usecase/court/cancel_court_appointment_usecase.dart';
+import 'package:centro/features/appointment/widget/appointment_item_widget.dart';
 import 'package:centro/features/appointment/widget/status_widget.dart';
-import 'package:centro/core/ui/widgets/cached_image.dart';
 import 'package:centro/core/ui/widgets/custom_button.dart';
 import 'package:centro/core/utils/project_utils/status_type.dart';
-import 'package:centro/features/category/ui/activity_details_screen.dart';
-import 'package:centro/features/category/ui/course_details_screen.dart';
-import 'package:centro/features/category/ui/event_details_screen.dart';
+import 'package:centro/features/category/ui/court_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
-class AppointmentDetailsScreen extends StatefulWidget {
+class CourtAppointmentDetailsScreen extends StatefulWidget {
 
   int appointmentId;
   VoidCallback? onRefresh;
 
-  AppointmentDetailsScreen({super.key,required this.appointmentId,this.onRefresh});
+  CourtAppointmentDetailsScreen({super.key,required this.appointmentId,this.onRefresh});
 
   @override
-  State<AppointmentDetailsScreen> createState() => _AppointmentDetailsScreenState();
+  State<CourtAppointmentDetailsScreen> createState() => _CourtAppointmentDetailsScreenState();
 }
 
-class _AppointmentDetailsScreenState extends State<AppointmentDetailsScreen> {
+class _CourtAppointmentDetailsScreenState extends State<CourtAppointmentDetailsScreen> {
 
-  GetModelCubit<AppointmentDetailsModel>? refreshCubit;
+  GetModelCubit<CourtAppointmentDetailsModel>? refreshCubit;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: AppColors.scaffoldColor,
         appBar: CustomHeader(title: "", isNavBar: false),
-        body: GetModel<AppointmentDetailsModel>(
+        body: GetModel<CourtAppointmentDetailsModel>(
           onCubitCreated: (cubit) {
-            refreshCubit = cubit as GetModelCubit<AppointmentDetailsModel>;
+            refreshCubit = cubit as GetModelCubit<CourtAppointmentDetailsModel>;
           },
           useCaseCallBack: () {
-            return AppointmentDetailsUseCase(AppointmentRepository()).call(
-                params: AppointmentDetailsParams(appointmentId: widget.appointmentId));
+            return CourtAppointmentDetailsUseCase(AppointmentRepository()).call(
+                params: CourtAppointmentDetailsParams(appointmentId: widget.appointmentId));
           },
           modelBuilder: (model) => SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 20.w,vertical: 20.h),
             child: Column(
               children: [
-                InkWell(
-                  onTap: () {
-                    if(model.holder!.type == "Activity") {
-                      Navigation.push(ActivityDetailsScreen(activityId: model.holder!.id!));
-                    } else if(model.holder!.type == "Course") {
-                      Navigation.push(CourseDetailsScreen(courseId: model.holder!.id!));
-                    } else {
-                      Navigation.push(EventDetailsScreen(eventId: model.holder!.id!));
-                    }
-                  },
-                  child: Card(
-                    color: AppColors.whiteColor,
-                    elevation: 3,
-                    shadowColor: AppColors.gray2Color,
-                    child: Container(
-                      margin: EdgeInsets.symmetric(vertical: 5.h,horizontal: 5.w),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CachedImage(
-                            width: 1.sw,
-                            height: 180.h,
-                            imageUrl: model.holder!.holderImage != null ?
-                            serverUrl + model.holder!.holderImage!.url! : "",
-                            fit: BoxFit.cover,
-                            borderRadius: 10.r,
-                          ),
-                          SizedBox(height: 10.h),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10.w),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Text(model.holder!.name!,
-                                          maxLines: 1,overflow: TextOverflow.ellipsis,
-                                          style: AppTheme.bodyLarge.copyWith(fontSize: 20.sp)),
-                                    ),
-                                    SizedBox(width: 10.w),
-                                    Text("${model.holder!.price} ${AppLocalization.of(context).translate("syr")}",
-                                        style: AppTheme.bodyLarge.copyWith(color: AppColors.primaryColor, fontSize: 20.sp)),
-                                  ],
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Flexible(
-                                      child: Text(model.holder!.category!.name!,
-                                          maxLines: 2,overflow: TextOverflow.ellipsis,
-                                          style: AppTheme.titleMedium.copyWith(color: AppColors.mediumGrayColor)
-                                      ),
-                                    ),
-                                    SizedBox(width: 5.w),
-                                    CustomRatingBar(rate: model.holder!.rate!.toDouble(),size: 18)
-                                  ],
-                                ),
-                                Text(model.holder!.description!,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppTheme.labelMedium.copyWith(color: AppColors.darkGrayColor),
-                                )
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                AppointmentItemWidget(
+                    onTap: () {
+                      Navigation.push(CourtDetailsScreen(courtId: model.holder!.id!));
+                    },
+                    imageUrl: model.holder!.holderImage != null ? serverUrl + model.holder!.holderImage!.url! : "",
+                    title: model.holder!.name!,
+                    category: model.holder!.category!.name!,
+                    description: model.holder!.description!,
+                    rating: model.holder!.rate!.toDouble(),
+                    price: "${model.holder!.price} ${AppLocalization.of(context).translate("syr")}"
                 ),
                 SizedBox(height: 10.h),
                 Card(
@@ -169,22 +105,26 @@ class _AppointmentDetailsScreenState extends State<AppointmentDetailsScreen> {
                         ),
                         SizedBox(height: model.notes == null ? 0 : 10.h),
                         model.notes == null ? Center() :
-                        Column(
+                        Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text("${AppLocalization.of(context).translate("note")}: ",
-                              style: AppTheme.headlineMedium.copyWith(color: AppColors.purpleColor),
+                              style: AppTheme.headlineMedium,
                             ),
-                            Text(model.notes!,
-                              style: AppTheme.bodyLarge.copyWith(fontSize: 18.sp),
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.only(top: 4.h),
+                                child: Text(model.notes!,
+                                  style: AppTheme.bodyLarge,
+                                ),
+                              ),
                             ),
                           ],
                         ),
-                        SizedBox(height: (model.holder!.type == "Course" || model.holder!.type == "Event") ? 0 :
-                        (model.holder!.type == "Activity" && model.status == "canceled") ? 0 : 20.h),
+                        SizedBox(height: (model.status == "canceled") ? 0 : 20.h),
                         Row(
                             children: [
-                              (model.holder!.type == "Activity" && model.status == "accepted") ? Expanded(
+                              (model.status == "accepted") ? Expanded(
                                 child: CustomButton(
                                   height: 40.h,
                                   backgroundColor: AppColors.redColor,
@@ -212,8 +152,8 @@ class _AppointmentDetailsScreenState extends State<AppointmentDetailsScreen> {
                                           widget.onRefresh?.call();
                                         },
                                         useCaseCallBack: (_) {
-                                          return CancelActivityAppointmentUseCase(AppointmentRepository()).call(
-                                              params: CancelActivityAppointmentParams(appointmentId: model.iD!)
+                                          return CancelCourtAppointmentUseCase(AppointmentRepository()).call(
+                                              params: CancelCourtAppointmentParams(appointmentId: model.iD!)
                                           );
                                         },
                                         child: CustomButton(
@@ -235,6 +175,7 @@ class _AppointmentDetailsScreenState extends State<AppointmentDetailsScreen> {
                     ),
                   ),
                 ),
+                SizedBox(height: 30.h),
               ],
             ),
           ),

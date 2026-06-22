@@ -8,6 +8,7 @@ const headerContentType = HttpHeaders.contentTypeHeader;
 const kAccessToken = 'access_token';
 const kAccessTokenExpirationDate = 'token_expiration';
 const userID = 'user_id';
+const String rememberMeKey = "remember_me";
 
 const String serverUrl = "https://planoo.net/";
 const String baseUrl = "https://planoo.net/api/customer/v1/";
@@ -33,6 +34,7 @@ const String getNotificationsUrl = "notification/all";
 const String viewNotificationUrl = "notification/view";
 const String deleteNotificationUrl = "notification/delete";
 const String clearNotificationsUrl = "notification/clear";
+const String checkNewNotificationsUrl = "notification/checkNew";
 /// appointment
 const String allAppointmentsUrl = "appointment/all";
 const String acceptedAppointmentsUrl = "appointment/accepted";
@@ -50,11 +52,13 @@ const String allCoursesUrl = "course/all";
 const String courseDetailsUrl = "course/find";
 const String cancelCourseUrl = "course/cancel";
 const String attendCourseUrl = "course/attend";
+const String attendedCourseUrl = "course/attended";
 /// event
 const String allEventsUrl = "event/all";
 const String eventDetailsUrl = "event/find";
 const String cancelEventUrl = "event/cancel";
 const String attendEventUrl = "event/attend";
+const String attendedEventUrl = "event/attended";
 
 /// home
 const String getFeedsUrl = "home/feeds";

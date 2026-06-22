@@ -10,10 +10,13 @@ import 'package:centro/core/constants/app_styles.dart';
 import 'package:centro/core/constants/end_point.dart';
 import 'package:centro/core/ui/dialogs/dialogs.dart';
 import 'package:centro/core/ui/shared_widgets/custom_header.dart';
+import 'package:centro/core/ui/shared_widgets/custom_info_widget.dart';
 import 'package:centro/core/ui/shared_widgets/expandable_text_widget.dart';
 import 'package:centro/core/ui/widgets/custom_button.dart';
 import 'package:centro/core/ui/widgets/custom_sheet.dart';
 import 'package:centro/core/utils/Navigation/Navigation.dart';
+import 'package:centro/core/utils/responsive/responsive.dart';
+import 'package:centro/core/utils/validators/convert_date_time.dart';
 import 'package:centro/features/auth/data/auth_repository/auth_repository.dart';
 import 'package:centro/features/auth/data/model/sign_in_model.dart';
 import 'package:centro/features/auth/data/usecase/logout_usecase.dart';
@@ -50,6 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = Responsive.isTablet(context);
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
       appBar: CustomHeader(title: AppLocalization.of(context).translate("profile"), isNavBar: true),
@@ -105,7 +109,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     },
                                     useCaseCallBack: (model) => DeleteProfileImageUseCase(ProfileRepository()).call(
                                         params: DeleteProfileImageParams()),
-                                    child: SvgPicture.asset(delete,width: 25.w),
+                                    child: SvgPicture.asset(delete,width: isTablet ? 20.w : 25.w),
                                   ),
                                   padding: 30.w,
                                   context: context,
@@ -126,7 +130,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     color: AppColors.primaryColor,
                                   ),
                                   child: Center(
-                                    child: SvgPicture.asset(image),
+                                    child: SvgPicture.asset(image,width: isTablet ? 25.w : null),
                                   ),
                                 ),
                               ),
@@ -134,26 +138,70 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 25.h),
+                      SizedBox(height: 20.h),
                       Text(model.customer!.name!,
                           textAlign: TextAlign.center,
                           style: AppTheme.headlineMedium.copyWith(fontSize: 22.sp)
+                      ),
+                      InkWell(
+                        onTap: () {
+                          CustomSheet.show(
+                              isDismissible: true,
+                              header: Text(AppLocalization.of(context).translate("edit"),
+                                style: AppTheme.titleLarge.copyWith(fontSize: 18.sp),
+                              ),
+                              padding: 30.w,
+                              context: context,
+                              child: EditProfileSheet(model: model,onImageUpdated: () async {
+                                _customerCubit?.getModel(silent: true);
+                              })
+                          );
+                        },
+                        child: Text("(${AppLocalization.of(context).translate("edit")})",
+                            textAlign: TextAlign.center,
+                            style: AppTheme.bodyMedium.copyWith(color: AppColors.primaryColor)
+                        ),
                       )
                     ],
                   ),
                 ),
-                SizedBox(height: 40.h),
-                ProfileCard(title: "edit_info",onTap: () {
+                SizedBox(height: 30.h),
+                ProfileCard(title: "your_info",onTap: () {
                   CustomSheet.show(
                       isDismissible: true,
-                      header: Text(AppLocalization.of(context).translate("edit"),
+                      header: Text(AppLocalization.of(context).translate("your_info"),
                         style: AppTheme.titleLarge.copyWith(fontSize: 18.sp),
                       ),
                       padding: 30.w,
                       context: context,
-                      child: EditProfileSheet(model: model,onImageUpdated: () async {
-                        _customerCubit?.getModel(silent: true);
-                      })
+                      child: Center(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: Container(
+                            width: 0.9.sw,
+                            padding: EdgeInsets.only(left: 10.w,right: 10.w,top: 0,bottom: 20.h),
+                            decoration: BoxDecoration(
+                              color: AppColors.whiteColor,
+                              borderRadius: BorderRadius.circular(20.r),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CustomInfoWidget(title: AppLocalization.of(context).translate("full_name"), subTitle: model.customer!.name!),
+                                SizedBox(height: 5.h),
+                                CustomInfoWidget(title: AppLocalization.of(context).translate("email_address"), subTitle: model.customer!.email ?? "-"),
+                                SizedBox(height: 5.h),
+                                CustomInfoWidget(title: AppLocalization.of(context).translate("birthdate"), subTitle: model.customer!.birthdate == null ? "-" : convertDate(date: model.customer!.birthdate!)),
+                                SizedBox(height: 5.h),
+                                CustomInfoWidget(title: AppLocalization.of(context).translate("gender"), subTitle: model.customer!.gender ?? "-"),
+                                SizedBox(height: 10.h),
+                              ],
+                            ),
+                          )
+                        ),
+                      ),
                   );
                 }),
                 SizedBox(height: 15.h),

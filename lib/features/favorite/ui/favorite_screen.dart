@@ -28,7 +28,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         backgroundColor: AppColors.scaffoldColor,
         appBar: CustomHeader(title: AppLocalization.of(context).translate("favorites"),isNavBar: false),
         body: SingleChildScrollView(
-          physics: NeverScrollableScrollPhysics(),
           padding: EdgeInsets.symmetric(horizontal: 25.w,vertical: 25.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,6 +47,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                       shrinkWrap: true,
                       scrollDirection: Axis.vertical,
                       itemCount: model.favoritesList!.length,
+                      physics: NeverScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
                         return FavoriteItem(
                           favorite: model.favoritesList![index],

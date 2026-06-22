@@ -30,7 +30,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>  with FormS
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: AppColors.scaffoldColor,
       appBar: CustomHeader(title: AppLocalization.of(context).translate("change_password"),isNavBar: false),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 20.w),

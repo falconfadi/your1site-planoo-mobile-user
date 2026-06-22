@@ -7,21 +7,21 @@ import 'package:centro/features/home/data/model/tag_model.dart';
 import 'package:centro/features/home/data/model/location_model.dart';
 import 'package:centro/features/profile/data/model/profile_image_model.dart';
 
-class ActivityDetailsResponse extends ApiResponse<ActivityDetailsModel> {
-  ActivityDetailsResponse({required super.errors, required super.message, required super.data});
+class CourtDetailsResponse extends ApiResponse<CourtDetailsModel> {
+  CourtDetailsResponse({required super.errors, required super.message, required super.data});
 
-  factory ActivityDetailsResponse.fromJson(Map<String, dynamic> json) {
-    return ActivityDetailsResponse(
+  factory CourtDetailsResponse.fromJson(Map<String, dynamic> json) {
+    return CourtDetailsResponse(
       errors: json["payload"]["errors"] != null
-          ? ActivityDetailsModel.fromJson(json["payload"]["errors"])
+          ? CourtDetailsModel.fromJson(json["payload"]["errors"])
           : null,
       message: json["message"],
-      data: ActivityDetailsModel.fromJson(json["payload"]['activity']),
+      data: CourtDetailsModel.fromJson(json["payload"]['activity']),
     );
   }
 }
 
-class ActivityDetailsModel extends BaseModel {
+class CourtDetailsModel extends BaseModel {
   int? iD;
   String? name;
   String? description;
@@ -37,7 +37,7 @@ class ActivityDetailsModel extends BaseModel {
   List<ImageModel>? mediaList;
   List<ReviewInfoModel>? reviewsList;
 
-  ActivityDetailsModel({
+  CourtDetailsModel({
     this.iD,
     this.name,
     this.description,
@@ -54,7 +54,7 @@ class ActivityDetailsModel extends BaseModel {
     this.reviewsList
   });
 
-  ActivityDetailsModel.fromJson(Map<String, dynamic> json) {
+  CourtDetailsModel.fromJson(Map<String, dynamic> json) {
     iD = json['id'];
     name = json['name'];
     description = json['description'];

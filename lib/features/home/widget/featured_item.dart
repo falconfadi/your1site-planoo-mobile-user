@@ -6,10 +6,10 @@ import 'package:centro/core/ui/shared_widgets/icon_text_widget.dart';
 import 'package:centro/core/ui/widgets/cached_image.dart';
 import 'package:centro/core/utils/Navigation/Navigation.dart';
 import 'package:centro/core/utils/project_utils/string_utils.dart';
-import 'package:centro/features/category/data/model/activity/activity_details_model.dart';
+import 'package:centro/features/category/data/model/court/court_details_model.dart';
 import 'package:centro/features/category/data/model/course/course_details_model.dart';
 import 'package:centro/features/category/data/model/event/event_details_model.dart';
-import 'package:centro/features/category/ui/activity_details_screen.dart';
+import 'package:centro/features/category/ui/court_details_screen.dart';
 import 'package:centro/features/category/ui/course_details_screen.dart';
 import 'package:centro/features/category/ui/event_details_screen.dart';
 import 'package:flutter/material.dart';
@@ -18,11 +18,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class FeaturedItem extends StatefulWidget {
 
-  ActivityDetailsModel? activity;
+  CourtDetailsModel? court;
   CourseDetailsModel? course;
   EventDetailsModel? event;
 
-  FeaturedItem({super.key, this.activity, this.course, this.event});
+  FeaturedItem({super.key, this.court, this.course, this.event});
 
   @override
   State<FeaturedItem> createState() => _FeaturedItemState();
@@ -31,7 +31,7 @@ class FeaturedItem extends StatefulWidget {
 class _FeaturedItemState extends State<FeaturedItem> {
 
   dynamic get item {
-    if (widget.activity != null) return widget.activity!;
+    if (widget.court != null) return widget.court!;
     if (widget.course != null) return widget.course!;
     if (widget.event != null) return widget.event!;
     return null;
@@ -41,9 +41,9 @@ class _FeaturedItemState extends State<FeaturedItem> {
     if (widget.event != null) {
       return "${widget.event!.eventDuration!} ${AppLocalization.of(context).translate("day")}";
     } else if (widget.course != null) {
-      return  "${widget.course!.sessionDuration!} ${AppLocalization.of(context).translate("minute")}"" - ""${widget.course!.courseDuration!} ${AppLocalization.of(context).translate("day")}";
+      return "${widget.course!.courseDuration!} ${AppLocalization.of(context).translate("day")}";
     } else {
-      return "${widget.activity!.sessionDuration!} ${AppLocalization.of(context).translate("minute")}";
+      return "${widget.court!.sessionDuration!} ${AppLocalization.of(context).translate("minute")}";
     }
   }
 
@@ -52,8 +52,8 @@ class _FeaturedItemState extends State<FeaturedItem> {
     final data = item;
     return InkWell(
       onTap: () {
-        if (widget.activity != null) {
-          Navigation.push(ActivityDetailsScreen(activityId: data.iD));
+        if (widget.court != null) {
+          Navigation.push(CourtDetailsScreen(courtId: data.iD));
           return;
         }
         if (widget.course != null) {
@@ -96,7 +96,7 @@ class _FeaturedItemState extends State<FeaturedItem> {
                         ),
                         SizedBox(width: 10.h),
                         Text(AppLocalization.of(context).translate(
-                            widget.activity != null ? "activity" : widget.course != null ? "course" : "event"),
+                            widget.court != null ? "court" : widget.course != null ? "course" : "event"),
                             style: AppTheme.bodySmall),
                       ],
                     ),
@@ -132,7 +132,7 @@ class _FeaturedItemState extends State<FeaturedItem> {
                               iconSize: 15.w,
                               iconColor: AppColors.primaryColor,
                               text: itemDuration,
-                              maxline: 1,
+                              maxLine: 1,
                               textStyle: AppTheme.labelMedium.copyWith(color: AppColors.mediumGrayColor,overflow: TextOverflow.ellipsis)
                           ),
                         )

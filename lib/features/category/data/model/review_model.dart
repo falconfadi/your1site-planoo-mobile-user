@@ -33,8 +33,8 @@ class ReviewModel extends BaseModel {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    if (this.reviewsList != null) {
-      data['reviews'] = this.reviewsList!.map((v) => v.toJson()).toList();
+    if (reviewsList != null) {
+      data['reviews'] = reviewsList!.map((v) => v.toJson()).toList();
     }
     return data;
   }

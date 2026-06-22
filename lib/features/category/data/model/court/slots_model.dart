@@ -1,6 +1,6 @@
 import 'package:centro/core/data_source/model.dart';
 import 'package:centro/core/responses/api_response.dart';
-import 'package:centro/features/category/data/model/activity/slot_details_model.dart';
+import 'package:centro/features/category/data/model/court/slot_details_model.dart';
 
 class SlotsResponse extends ApiResponse<SlotsModel> {
   SlotsResponse({required super.errors, required super.message, required super.data});

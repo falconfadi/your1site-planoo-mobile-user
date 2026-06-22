@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
-import 'package:centro/core/constants/enum/notification_type.dart';
 import 'package:centro/core/utils/navigation/Navigation.dart';
-import 'package:centro/features/appointment/ui/appointment_details_screen.dart';
+import 'package:centro/features/appointment/ui/course_appointment_details_screen.dart';
+import 'package:centro/features/appointment/ui/court_appointment_details_screen.dart';
+import 'package:centro/features/appointment/ui/event_appointment_details_screen.dart';
 import 'package:centro/features/nav_bar/ui/nav_bar_screen.dart';
+import 'package:centro/features/notification/data/notification_repository/notification_repository.dart';
+import 'package:centro/features/notification/data/usecase/check_new_notifications_usecase.dart';
 import 'package:centro/features/notification/ui/notification_screen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -12,10 +15,15 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class FirebaseApi {
 
+  FirebaseApi._();
+  static final FirebaseApi instance = FirebaseApi._();
+
   static String? deviceToken;
   static RemoteMessage? _initialMessage;
   static bool _appReady = false;
+  VoidCallback? onNotificationChange;
 
+  final ValueNotifier<bool> hasNewNotificationsNotifier = ValueNotifier(false);
   final _firebaseMessaging = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
 
@@ -28,6 +36,7 @@ class FirebaseApi {
       sound: true,
     );
     await getDeviceToken();
+    listenToTokenRefresh();
     _listenToMessages();
   }
 
@@ -72,15 +81,29 @@ class FirebaseApi {
     });
   }
 
+  Future<void> refreshNotificationsStatus() async {
+    final result = await CheckNewNotificationsUseCase(NotificationRepository())
+        .call(params: CheckNewNotificationsParams());
+
+    if (result.hasDataOnly) {
+      hasNewNotificationsNotifier.value = result.data?.newNotifications ?? false;
+      print(hasNewNotificationsNotifier.value);
+    }
+  }
+
   void _listenToMessages() {
     /// Foreground
     FirebaseMessaging.onMessage.listen((message) {
       _showLocalNotification(message);
+      hasNewNotificationsNotifier.value = true;
+      onNotificationChange?.call();
     });
 
     /// Background (opened from notification)
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
       _handleMessageNavigation(message);
+      hasNewNotificationsNotifier.value = true;
+      onNotificationChange?.call();
     });
 
     /// Terminated
@@ -107,7 +130,7 @@ class FirebaseApi {
     );
 
     await _localNotifications.initialize(
-      settings,
+      settings: settings,
       onDidReceiveNotificationResponse: (response) {},
     );
 
@@ -141,10 +164,10 @@ class FirebaseApi {
     );
 
     await _localNotifications.show(
-      Random().nextInt(100000),
-      message.notification?.title,
-      message.notification?.body,
-      details,
+      id: Random().nextInt(100000),
+      title: message.notification?.title,
+      body: message.notification?.body,
+      notificationDetails: details,
     );
   }
 
@@ -161,6 +184,7 @@ class FirebaseApi {
   }
 
   void _handleMessageNavigation(RemoteMessage message) {
+    hasNewNotificationsNotifier.value = true;
     final data = message.data;
 
     if (data.isEmpty || !data.containsKey('type')) return;
@@ -175,8 +199,19 @@ class FirebaseApi {
         target = const NotificationScreen();
         break;
 
+      case 3:
+        target = CourseAppointmentDetailsScreen(
+          courseId: int.parse(data['course']),
+        );
+        break;
+
+      case 4:
+        target = EventAppointmentDetailsScreen(
+          eventId: int.parse(data['event']),
+        );
+        break;
       case 5:
-        target = AppointmentDetailsScreen(
+        target = CourtAppointmentDetailsScreen(
           appointmentId: int.parse(data['appointment']),
         );
         break;
@@ -193,36 +228,6 @@ class FirebaseApi {
         Navigation.push(target);
       });
     }
-  }
-
-  void _navigateFromMessage(RemoteMessage message) {
-    final data = message.data;
-    final notificationType = NotificationType.fromInt(int.parse(data['type']));
-    Widget target;
-
-    switch (notificationType) {
-      case NotificationType.normal:
-      case NotificationType.verificationCode:  /// example response: {code: 15979, type: 1}
-        target = NotificationScreen();
-        break;
-
-      case NotificationType.appointment: /// example response: {appointment: 4, type: 5}
-        target = AppointmentDetailsScreen(
-          appointmentId: int.parse(data['appointment']),
-        );
-        break;
-      default:
-        return;
-    }
-
-    if (Navigation.hasNavigationStack) {
-      Navigation.push(target);
-      return;
-    }
-    Navigation.pushReplacement(NavBarScreen(pageIndex: 0));
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Navigation.push(target);
-    });
   }
 }
 

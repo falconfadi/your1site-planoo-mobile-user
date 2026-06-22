@@ -1,6 +1,7 @@
 import 'package:centro/core/boilerplate/create_model/widgets/create_model.dart';
 import 'package:centro/core/ui/shared_widgets/custom_rating_bar.dart';
 import 'package:centro/core/utils/Navigation/Navigation.dart';
+import 'package:centro/core/utils/responsive/responsive.dart';
 import 'package:centro/features/category/data/category_repository/category_repository.dart';
 import 'package:centro/features/category/data/usecase/add_review_usecase.dart';
 import 'package:flutter/material.dart';
@@ -10,8 +11,6 @@ import 'package:centro/core/ui/widgets/custom_button.dart';
 import 'package:centro/core/utils/form_utils/form_state_mixin.dart';
 import 'package:centro/core/ui/widgets/custom_text_field.dart';
 import 'package:centro/core/utils/extension/text_field_ext.dart';
-import 'package:centro/core/utils/validators/base_validator.dart';
-import 'package:centro/core/utils/validators/required_validator.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AddReviewSheet extends StatefulWidget {
@@ -32,6 +31,7 @@ class _AddReviewSheetState extends State<AddReviewSheet>  with FormStateMinxin {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = Responsive.isTablet(context);
     return SizedBox(
       child: Form(
         key: form.key,
@@ -40,7 +40,7 @@ class _AddReviewSheetState extends State<AddReviewSheet>  with FormStateMinxin {
           children: [
             CustomRatingBar(
               rate: userRate,
-              size: 40.sp,
+              size: isTablet ? 30.sp : 40.sp,
               itemPadding: 10.w,
               onChanged: (value) {
                 setState(() {
@@ -52,13 +52,6 @@ class _AddReviewSheetState extends State<AddReviewSheet>  with FormStateMinxin {
             CustomTextField(
               autoValidateMode: AutovalidateMode.onUserInteraction,
               maxLine: 3,
-              validator: (value) {
-                return BaseValidator.validateValue(
-                  context,
-                  form.controllers[0].text,
-                  [RequiredValidator()],
-                );
-              },
               focusNode: form.nodes[0],
               textEditingController: form.controllers[0],
               labelText: "${AppLocalization.of(context).translate("add_your_review")}...",
@@ -90,7 +83,7 @@ class _AddReviewSheetState extends State<AddReviewSheet>  with FormStateMinxin {
                   buttonName: AppLocalization.of(context).translate("send"),
                 ),
             ),
-            SizedBox(height: 30.h),
+            SizedBox(height: 50.h),
           ],
         ),
       ),

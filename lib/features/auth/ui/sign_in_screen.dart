@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:centro/core/boilerplate/create_model/widgets/create_model.dart';
 import 'package:centro/core/classes/app_storage.dart';
 import 'package:centro/core/classes/firebase_api.dart';
@@ -5,8 +6,10 @@ import 'package:centro/core/constants/app_images.dart';
 import 'package:centro/core/constants/end_point.dart';
 import 'package:centro/core/ui/dialogs/dialogs.dart';
 import 'package:centro/core/utils/Navigation/Navigation.dart';
+import 'package:centro/core/utils/responsive/responsive.dart';
 import 'package:centro/core/utils/validators/phone_number_validation.dart';
 import 'package:centro/features/auth/data/auth_repository/auth_repository.dart';
+import 'package:centro/features/auth/data/model/remember_me_model.dart';
 import 'package:centro/features/auth/data/model/sign_in_model.dart';
 import 'package:centro/features/auth/data/usecase/sign_in_usecase.dart';
 import 'package:centro/features/auth/ui/sign_up_screen.dart';
@@ -39,9 +42,33 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInScreenState extends State<SignInScreen>  with FormStateMinxin {
 
+  bool rememberMe = false;
+
+  @override
+  void initState() {
+    super.initState();
+    loadRememberMe();
+  }
+
+  void loadRememberMe() {
+
+    String? data = AppStorage.getData(key: rememberMeKey);
+
+    if (data != null) {
+      final rememberModel = RememberMeModel.fromJson(jsonDecode(data));
+      rememberMe = rememberModel.rememberMe;
+      if (rememberMe) {
+        form.controllers[0].text = rememberModel.phone;
+        form.controllers[1].text = rememberModel.password;
+      }
+    }
+    if (mounted) {
+      setState(() {});
+    }
+  }
   Future<void> saveLoginTokens(String token) async {
     Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-    int expirationTimestamp = decodedToken['exp']; // in seconds since epoch
+    int expirationTimestamp = decodedToken['exp'];
     DateTime expirationDate = DateTime.fromMillisecondsSinceEpoch(expirationTimestamp * 1000);
 
     await AppStorage.saveData(key: kAccessToken, value: token);
@@ -50,6 +77,7 @@ class _SignInScreenState extends State<SignInScreen>  with FormStateMinxin {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = Responsive.isTablet(context);
     return Scaffold(
       backgroundColor: AppColors.scaffoldColor,
       body: SafeArea(
@@ -104,6 +132,34 @@ class _SignInScreenState extends State<SignInScreen>  with FormStateMinxin {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
+                    Expanded(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(bottom: isTablet ? 5.sp : 2.sp),
+                              child: Transform.scale(
+                                scale: isTablet ? 1.8 : 1,
+                                child: Checkbox(
+                                  value: rememberMe,
+                                  activeColor: AppColors.primaryColor,
+                                  visualDensity: VisualDensity.compact,
+                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      rememberMe = value ?? false;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: isTablet ? 5.w : 0),
+                            Text(AppLocalization.of(context).translate("remember_me"),
+                              style: AppTheme.bodyMedium.copyWith(fontSize: isTablet ? 15.sp : null),
+                            ),
+                          ],
+                        )
+                    ),
                     InkWell(
                       onTap: () {
                         CustomSheet.show(

@@ -21,29 +21,24 @@ class CustomRatingBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        RatingBar.builder(
-          initialRating: rate,
-          minRating: 1,
-          glowColor: AppColors.whiteColor,
-          ignoreGestures: onChanged == null,
-          direction: Axis.horizontal,
-          allowHalfRating: true,
-          itemCount: 5,
-          itemSize: size ?? 25.w,
-          unratedColor: AppColors.grayColor,
-          itemPadding: EdgeInsets.symmetric(horizontal: itemPadding ?? 1.w),
-          itemBuilder: (context, _) => Icon(
-            iconData ?? Icons.star,
-            color: AppColors.yellowColor,
-          ),
-          onRatingUpdate: (rating) {
-            onChanged?.call(rating);
-          },
-        ),
-      ],
+    return RatingBar.builder(
+      initialRating: rate,
+      minRating: 1,
+      glowColor: AppColors.whiteColor,
+      ignoreGestures: onChanged == null,
+      direction: Axis.horizontal,
+      allowHalfRating: true,
+      itemCount: 5,
+      itemSize: size ?? 25.w,
+      unratedColor: AppColors.grayColor,
+      itemPadding: EdgeInsets.symmetric(horizontal: itemPadding ?? 1.w),
+      itemBuilder: (context, _) => Icon(
+        iconData ?? Icons.star,
+        color: AppColors.yellowColor,
+      ),
+      onRatingUpdate: (rating) {
+        onChanged?.call(rating);
+      },
     );
   }
 }
