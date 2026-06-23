@@ -29,7 +29,10 @@ class ViewImageWidget extends StatelessWidget {
           showAnimatedDialog(
             context,
             Dialog(
-              insetPadding: EdgeInsets.all(20.w),
+              insetPadding: EdgeInsets.symmetric(
+                horizontal: isTablet ? 80.w : 20.w,
+                vertical: 20.h,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.r),
               ),

@@ -84,7 +84,7 @@ class _EventAppointmentDetailsScreenState extends State<EventAppointmentDetailsS
                           AppColors.redColor : model.status! == "completed" ?
                           AppColors.purpleColor : AppColors.darkGreenColor,
                           width: 0.25.sw,
-                          height: isTablet ? 35.h : 32.h,
+                          height: isTablet ? null : 32.h,
                         ),
                         SizedBox(height: 20.h),
                         IconTextWidget(

@@ -145,7 +145,7 @@ class _AppointmentWidgetState extends State<AppointmentWidget> {
                     statusText: itemStatus,
                     statusColor: getStatusColor(),
                     width: 0.25.sw,
-                    height: isTablet ? 35.h : 32.h,
+                    height: isTablet ? null : 32.h,
                   ),
                 ],
               ),

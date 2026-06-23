@@ -24,6 +24,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/utils/responsive/responsive.dart';
+
 class CourtAppointmentDetailsScreen extends StatefulWidget {
 
   int appointmentId;
@@ -41,6 +43,7 @@ class _CourtAppointmentDetailsScreenState extends State<CourtAppointmentDetailsS
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = Responsive.isTablet(context);
     return Scaffold(
         backgroundColor: AppColors.scaffoldColor,
         appBar: CustomHeader(title: "", isNavBar: false),
@@ -85,7 +88,7 @@ class _CourtAppointmentDetailsScreenState extends State<CourtAppointmentDetailsS
                           statusText: model.status!,
                           statusColor: StatusType().getStatusInfo(model.status!)["color"],
                           width: 0.25.sw,
-                          height: 32.h,
+                          height: isTablet ? null : 32.h,
                         ),
                         SizedBox(height: 20.h),
                         IconTextWidget(
