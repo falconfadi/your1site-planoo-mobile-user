@@ -6,13 +6,14 @@ import '../../../../core/usecase/usecase.dart';
 
 class SignInParams extends BaseParams {
 
-final String phone,password,firebaseToken;
+  final String? phone,countryCode,password,firebaseToken;
 
-SignInParams({required this.phone, required this.password, required this.firebaseToken});
+  SignInParams({this.phone, this.countryCode, this.password,this.firebaseToken});
 
   Map<String, String?> toJson() {
     return {
       "phone": phone,
+      "country_code": countryCode,
       "password": password,
       "firebase_token": firebaseToken
     };

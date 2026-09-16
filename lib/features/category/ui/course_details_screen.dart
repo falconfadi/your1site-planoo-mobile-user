@@ -39,7 +39,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class CourseDetailsScreen extends StatefulWidget {
 
-  final int courseId;
+  final String courseId;
 
   const CourseDetailsScreen({super.key,required this.courseId});
 
@@ -160,6 +160,13 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen>  with TickerP
                           style: AppTheme.titleMedium.copyWith(color: AppColors.gray3Color),
                         ),
                       ],
+                    ),
+                    SizedBox(height: 5.h),
+                    IconTextWidget(
+                      icon: court,
+                      iconSize: 30.w,
+                      text: model.mainCourt!.name!,
+                      textStyle: AppTheme.bodyLarge,
                     ),
                     SizedBox(height: 5.h),
                     Row(

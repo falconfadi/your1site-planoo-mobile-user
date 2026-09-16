@@ -21,7 +21,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class EventAppointmentDetailsScreen extends StatefulWidget {
 
-  int eventId;
+  String eventId;
 
   EventAppointmentDetailsScreen({super.key,required this.eventId});
 

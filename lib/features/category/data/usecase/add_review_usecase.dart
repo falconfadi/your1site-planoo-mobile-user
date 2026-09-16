@@ -8,7 +8,7 @@ class AddReviewParams extends BaseParams {
   final int rate;
   final String content;
   final String ownerType;
-  final int ownerId;
+  final String ownerId;
 
   AddReviewParams({
     required this.rate,

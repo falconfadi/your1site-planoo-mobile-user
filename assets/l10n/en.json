@@ -126,5 +126,6 @@
   "facilities": "Facilities",
   "workdays": "Workdays",
   "remaining_sessions": "Remaining sessions",
-  "your_info": "Your information"
+  "your_info": "Your information",
+  "invalid_country_phone": "The phone number is invalid for the selected country"
 }

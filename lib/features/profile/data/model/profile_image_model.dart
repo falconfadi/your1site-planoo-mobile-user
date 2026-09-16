@@ -41,30 +41,46 @@ class ProfileImageModel extends BaseModel {
 class ImageModel {
 
   int? id;
+  String? belongToType;
+  String? belongToId;
   String? url;
   String? type;
   String? name;
+  String? createdAt;
+  String? updatedAt;
 
   ImageModel({
     this.id,
+    this.belongToType,
+    this.belongToId,
     this.url,
     this.type,
-    this.name
+    this.name,
+    this.createdAt,
+    this.updatedAt,
   });
 
   ImageModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
+    belongToType = json['belongTo_type'];
+    belongToId = json['belongTo_id'];
     url = json['url'];
     type = json['type'];
     name = json['name'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
+    data['belongTo_type'] = belongToType;
+    data['belongTo_id'] = belongToId;
     data['url'] = url;
     data['type'] = type;
     data['name'] = name;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
     return data;
   }
 }

@@ -39,7 +39,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class EventDetailsScreen extends StatefulWidget {
 
-  final int eventId;
+  final String eventId;
 
   const EventDetailsScreen({super.key,required this.eventId});
 
@@ -160,6 +160,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>  with TickerPro
                           style: AppTheme.titleMedium.copyWith(color: AppColors.gray3Color),
                         ),
                       ],
+                    ),
+                    SizedBox(height: 5.h),
+                    IconTextWidget(
+                      icon: court,
+                      iconSize: 30.w,
+                      text: model.mainCourt!.name!,
+                      textStyle: AppTheme.bodyLarge,
                     ),
                     SizedBox(height: 5.h),
                     Row(

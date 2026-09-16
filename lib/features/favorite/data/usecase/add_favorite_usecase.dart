@@ -6,7 +6,7 @@ import '../../../../../core/usecase/usecase.dart';
 class AddFavoriteParams extends BaseParams {
 
   final String ownerType;
-  final int ownerId;
+  final String ownerId;
 
   AddFavoriteParams({
     required this.ownerType,

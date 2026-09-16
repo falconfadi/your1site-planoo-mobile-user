@@ -5,7 +5,7 @@ import '../../../../../../core/usecase/usecase.dart';
 
 class CancelCourseParams extends BaseParams {
 
-  final int courseId;
+  final String courseId;
 
   CancelCourseParams({required this.courseId});
 

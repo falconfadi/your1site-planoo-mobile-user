@@ -1,6 +1,7 @@
 import 'package:centro/core/data_source/model.dart';
 import 'package:centro/core/responses/api_response.dart';
 import 'package:centro/features/category/data/model/category_model.dart';
+import 'package:centro/features/category/data/model/main_court_details_model.dart';
 import 'package:centro/features/category/data/model/review_model.dart';
 import 'package:centro/features/home/data/model/day_model.dart';
 import 'package:centro/features/home/data/model/tag_model.dart';
@@ -22,9 +23,10 @@ class CourtDetailsResponse extends ApiResponse<CourtDetailsModel> {
 }
 
 class CourtDetailsModel extends BaseModel {
-  int? iD;
+  String? iD;
   String? name;
   String? description;
+  MainCourtDetailsModel? mainCourt;
   CategoryInfoModel? category;
   bool? isActive;
   int? price;
@@ -41,6 +43,7 @@ class CourtDetailsModel extends BaseModel {
     this.iD,
     this.name,
     this.description,
+    this.mainCourt,
     this.category,
     this.isActive,
     this.price,
@@ -58,6 +61,7 @@ class CourtDetailsModel extends BaseModel {
     iD = json['id'];
     name = json['name'];
     description = json['description'];
+    mainCourt = json['court'] != null ? MainCourtDetailsModel.fromJson(json['court']) : null;
     category = json['category'] != null ? CategoryInfoModel.fromJson(json['category']) : null;
     isActive = json['is_active'];
     price = json['price'];
@@ -96,6 +100,9 @@ class CourtDetailsModel extends BaseModel {
     data['id'] = iD;
     data['name'] = name;
     data['description'] = description;
+    if (mainCourt != null) {
+      data['court'] = mainCourt!.toJson();
+    }
     if (category != null) {
       data['category'] = category!.toJson();
     }

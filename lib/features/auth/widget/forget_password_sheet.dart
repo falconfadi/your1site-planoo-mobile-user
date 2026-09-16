@@ -1,9 +1,12 @@
 import 'package:centro/core/boilerplate/create_model/widgets/create_model.dart';
 import 'package:centro/core/classes/firebase_api.dart';
+import 'package:centro/core/ui/shared_widgets/custom_country_code_picker_widget.dart';
 import 'package:centro/core/utils/Navigation/Navigation.dart';
+import 'package:centro/core/utils/responsive/responsive.dart';
 import 'package:centro/features/auth/data/auth_repository/auth_repository.dart';
 import 'package:centro/features/auth/data/usecase/forget_password_usecase.dart';
 import 'package:centro/features/auth/ui/reset_password_screen.dart';
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:centro/core/constants/app_colors.dart';
 import 'package:centro/core/classes/app_localization.dart';
@@ -12,13 +15,21 @@ import 'package:centro/core/utils/form_utils/form_state_mixin.dart';
 import 'package:centro/core/ui/widgets/custom_text_field.dart';
 import 'package:centro/core/utils/extension/text_field_ext.dart';
 import 'package:centro/core/utils/validators/base_validator.dart';
-import 'package:centro/core/utils/validators/phone_number_validation.dart';
 import 'package:centro/core/utils/validators/required_validator.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:phone_numbers_parser/phone_numbers_parser.dart';
 
 class ForgetPasswordSheet extends StatefulWidget {
 
-  const ForgetPasswordSheet({super.key});
+  final String countryDialCode;
+  final String selectedIsoCode;
+  final bool isCountryCodeStored;
+
+  const ForgetPasswordSheet({super.key,
+    required this.countryDialCode,
+    required this.selectedIsoCode,
+    required this.isCountryCodeStored,
+  });
 
   @override
   State<ForgetPasswordSheet> createState() => _ForgetPasswordSheetState();
@@ -26,8 +37,19 @@ class ForgetPasswordSheet extends StatefulWidget {
 
 class _ForgetPasswordSheetState extends State<ForgetPasswordSheet>  with FormStateMinxin {
 
+  late String localCountryDialCode;
+  late String localSelectedIsoCode;
+
+  @override
+  void initState() {
+    super.initState();
+    localCountryDialCode = widget.countryDialCode;
+    localSelectedIsoCode = widget.selectedIsoCode;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isTablet = Responsive.isTablet(context);
     return SizedBox(
       child: Form(
         key: form.key,
@@ -35,26 +57,67 @@ class _ForgetPasswordSheetState extends State<ForgetPasswordSheet>  with FormSta
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(height: 10.h),
-            CustomTextField(
-              autoValidateMode: AutovalidateMode.onUserInteraction,
-              prefixIcon: Icons.phone_android_outlined,
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                return BaseValidator.validateValue(
-                  context,
-                  form.controllers[0].text,
-                  [RequiredValidator(),PhoneNumberValidator(value: value)],
-                );
-              },
-              focusNode: form.nodes[0],
-              textEditingController: form.controllers[0],
-              labelText: AppLocalization.of(context).translate("phone"),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(top: isTablet ? 15.h : 5.h),
+                  child: CustomCountryCodePickerWidget(
+                    enabled: !widget.isCountryCodeStored,
+                    initialSelection: widget.countryDialCode,
+                    onChanged: (CountryCode countryCode) {
+                      setState(() {
+                        localCountryDialCode = countryCode.dialCode ?? "+963";
+                        localSelectedIsoCode = countryCode.code ?? "SY";
+                      });
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: CustomTextField(
+                    autoFocus: false,
+                    autoValidateMode: AutovalidateMode.onUserInteraction,
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      final baseError = BaseValidator.validateValue(
+                        context,
+                        value ?? '',
+                        [RequiredValidator()],
+                      );
+                      if (baseError != null) return baseError;
+                      try {
+                        final targetIso = IsoCode.values.firstWhere(
+                              (element) => element.name == widget.selectedIsoCode.toUpperCase(),
+                          orElse: () => IsoCode.IQ,
+                        );
+                        final parsedPhone = PhoneNumber.parse(
+                          value!.trim(),
+                          callerCountry: targetIso,
+                        );
+
+                        if (!parsedPhone.isValid()) {
+                          return AppLocalization.of(context).translate("invalid_country_phone");
+                        }
+                      } catch (e) {
+                        return AppLocalization.of(context).translate("invalid_phone_format");
+                      }
+                      return null;
+                    },
+                    focusNode: form.nodes[0],
+                    textEditingController: form.controllers[0],
+                    labelText: AppLocalization.of(context).translate("phone"),
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: 50.h),
             CreateModel(
                 onSuccess: (model) async {
-                  Navigation.popThenPush(ResetPasswordScreen(phone: form.controllers[0].text));
-                },
+                  Navigation.popThenPush(ResetPasswordScreen(
+                    phone: form.controllers[0].text,
+                    countryDialCode: widget.countryDialCode,
+                  ));
+                  },
                 withValidation: true,
                 onTap: () {
                   return form.validate();
@@ -63,6 +126,7 @@ class _ForgetPasswordSheetState extends State<ForgetPasswordSheet>  with FormSta
                   return ForgetPasswordUseCase(AuthRepository()).call(
                       params: ForgetPasswordParams(
                           phone: form.controllers[0].text,
+                          countryCode: widget.countryDialCode,
                           firebaseToken: FirebaseApi.deviceToken.toString()
                       ));
                 },

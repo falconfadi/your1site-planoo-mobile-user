@@ -31,3 +31,4 @@ const close = 'assets/icons/close.svg';
 const check = 'assets/icons/check.svg';
 const capacity = 'assets/icons/capacity.svg';
 const remainingSessions = 'assets/icons/remaining_sessions.svg';
+const court = 'assets/icons/court.svg';

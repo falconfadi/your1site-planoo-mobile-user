@@ -16,7 +16,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class AddReviewSheet extends StatefulWidget {
 
   String ownerType;
-  int ownerId;
+  String ownerId;
   final VoidCallback onRefresh;
 
   AddReviewSheet({super.key,required this.ownerType,required this.ownerId,required this.onRefresh});

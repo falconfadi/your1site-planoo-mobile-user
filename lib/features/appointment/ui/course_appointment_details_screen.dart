@@ -21,7 +21,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CourseAppointmentDetailsScreen extends StatefulWidget {
 
-  int courseId;
+  String courseId;
 
   CourseAppointmentDetailsScreen({super.key,required this.courseId});
 

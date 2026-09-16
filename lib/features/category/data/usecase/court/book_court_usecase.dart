@@ -5,7 +5,7 @@ import '../../../../../../core/usecase/usecase.dart';
 
 class BookCourtParams extends BaseParams {
 
-  final int courtId;
+  final String courtId;
   final String code;
   final int dayId;
   final String date;

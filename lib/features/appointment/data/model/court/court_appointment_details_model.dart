@@ -20,7 +20,7 @@ class CourtAppointmentDetailsResponse extends ApiResponse<CourtAppointmentDetail
 
 class CourtAppointmentDetailsModel extends BaseModel {
 
-  int? iD;
+  String? iD;
   String? date;
   String? time;
   String? status;
@@ -79,7 +79,7 @@ class CourtAppointmentDetailsModel extends BaseModel {
 }
 
 class HolderModel {
-  int? id;
+  String? id;
   String? type;
   String? name;
   CategoryInfoModel? category;

@@ -201,18 +201,18 @@ class FirebaseApi {
 
       case 3:
         target = CourseAppointmentDetailsScreen(
-          courseId: int.parse(data['course']),
+          courseId: data['course'],
         );
         break;
 
       case 4:
         target = EventAppointmentDetailsScreen(
-          eventId: int.parse(data['event']),
+          eventId: data['event'],
         );
         break;
       case 5:
         target = CourtAppointmentDetailsScreen(
-          appointmentId: int.parse(data['appointment']),
+          appointmentId: data['appointment'],
         );
         break;
 

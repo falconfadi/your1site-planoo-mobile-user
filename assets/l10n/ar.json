@@ -126,5 +126,6 @@
   "facilities": "المرافق",
   "workdays": "أيام العمل",
   "remaining_sessions": "الجلسات المتبقية",
-  "your_info": "معلوماتك"
+  "your_info": "معلوماتك",
+  "invalid_country_phone": "رقم الهاتف غير صحيح للدولة المحددة"
 }

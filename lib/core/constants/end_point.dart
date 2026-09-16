@@ -9,6 +9,7 @@ const kAccessToken = 'access_token';
 const kAccessTokenExpirationDate = 'token_expiration';
 const userID = 'user_id';
 const String rememberMeKey = "remember_me";
+const String countryCodeKey = "country_code";
 
 const String serverUrl = "https://planoo.net/";
 const String baseUrl = "https://planoo.net/api/customer/v1/";

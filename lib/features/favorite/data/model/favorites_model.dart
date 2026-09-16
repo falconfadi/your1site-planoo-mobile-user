@@ -36,9 +36,9 @@ class FavoritesModel extends BaseModel {
 class FavoriteItemModel {
 
   int? id;
-  int? customerId;
+  String? customerId;
   String? favoritableType;
-  int? favoritableId;
+  String? favoritableId;
   String? createdAt;
   String? updatedAt;
   Holder? holder;
@@ -79,9 +79,10 @@ class FavoriteItemModel {
 }
 
 abstract class Holder {
-  final int id;
-  final int userId;
+  final String id;
+  final String userId;
   final int categoryId;
+  final String courtId;
   final String name;
   final String description;
 
@@ -89,6 +90,7 @@ abstract class Holder {
     required this.id,
     required this.userId,
     required this.categoryId,
+    required this.courtId,
     required this.name,
     required this.description,
   });
@@ -105,12 +107,15 @@ class EventHolderModel extends Holder {
   int? status;
   String? startDate;
   String? endDate;
+  String? createdAt;
+  String? updatedAt;
   List<ImageModel>? mediaList;
 
   EventHolderModel({
     required super.id,
     required super.userId,
     required super.categoryId,
+    required super.courtId,
     required super.name,
     required super.description,
     this.isActive,
@@ -123,6 +128,8 @@ class EventHolderModel extends Holder {
     this.status,
     this.startDate,
     this.endDate,
+    this.createdAt,
+    this.updatedAt,
     this.mediaList,
   });
 
@@ -130,6 +137,7 @@ class EventHolderModel extends Holder {
     id: json['id'],
     userId: json['user_id'],
     categoryId: json['category_id'],
+    courtId: json['court_id'],
     name: json['name'],
     description: json['description'],
   ) {
@@ -149,6 +157,8 @@ class EventHolderModel extends Holder {
         mediaList!.add(ImageModel.fromJson(v));
       });
     }
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
   }
 }
 
@@ -156,27 +166,34 @@ class CourseHolderModel extends Holder {
   bool? isActive;
   bool? isFull;
   int? price;
-  int? sessionDuration;
   int? courseDuration;
   int? capacity;
   int? rate;
   int? cancellationFee;
+  String? startDate;
+  int? status;
+  String? createdAt;
+  String? updatedAt;
   List<ImageModel>? mediaList;
 
   CourseHolderModel({
     required super.id,
     required super.userId,
     required super.categoryId,
+    required super.courtId,
     required super.name,
     required super.description,
     this.isActive,
     this.isFull,
     this.price,
-    this.sessionDuration,
     this.courseDuration,
     this.capacity,
     this.rate,
     this.cancellationFee,
+    this.startDate,
+    this.status,
+    this.createdAt,
+    this.updatedAt,
     this.mediaList,
   });
 
@@ -184,13 +201,13 @@ class CourseHolderModel extends Holder {
     id: json['id'],
     userId: json['user_id'],
     categoryId: json['category_id'],
+    courtId: json['court_id'],
     name: json['name'],
     description: json['description'],
   ) {
     isActive = json['is_active'];
     isFull = json['is_full'];
     price = json['price'];
-    sessionDuration = json['session_duration'];
     courseDuration = json['course_duration'];
     capacity = json['capacity'];
     rate = json['rate'];
@@ -201,6 +218,10 @@ class CourseHolderModel extends Holder {
         mediaList!.add(ImageModel.fromJson(v));
       });
     }
+    startDate = json['start_date'];
+    status = json['status'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
   }
 }
 
@@ -215,6 +236,7 @@ class CourtHolderModel extends Holder {
     required super.id,
     required super.userId,
     required super.categoryId,
+    required super.courtId,
     required super.name,
     required super.description,
     this.price,
@@ -228,6 +250,7 @@ class CourtHolderModel extends Holder {
     id: json['id'],
     userId: json['user_id'],
     categoryId: json['category_id'],
+    courtId: json['court_id'],
     name: json['name'],
     description: json['description'],
   ) {

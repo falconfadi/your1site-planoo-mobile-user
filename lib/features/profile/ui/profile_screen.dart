@@ -245,6 +245,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onSuccess: (data) {
                         AppStorage.removeData(key: kAccessToken);
                         AppStorage.removeData(key: userID);
+                        AppStorage.removeData(key: rememberMeKey);
+                        AppStorage.removeData(key: countryCodeKey);
                         Navigation.pushAndRemoveUntil(SignInScreen());
                       },
                       useCaseCallBack: (model) {

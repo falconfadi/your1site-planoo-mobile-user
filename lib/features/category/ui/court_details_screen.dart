@@ -4,7 +4,7 @@ import 'package:centro/core/boilerplate/get_model/widgets/get_model.dart';
 import 'package:centro/core/classes/app_localization.dart';
 import 'package:centro/core/classes/app_storage.dart';
 import 'package:centro/core/constants/app_colors.dart';
-import 'package:centro/core/constants/app_images.dart';
+import 'package:centro/core/constants/app_images.dart' as image;
 import 'package:centro/core/constants/app_styles.dart';
 import 'package:centro/core/ui/shared_widgets/custom_header.dart';
 import 'package:centro/core/ui/shared_widgets/custom_rating_bar.dart';
@@ -35,7 +35,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class CourtDetailsScreen extends StatefulWidget {
 
-  final int courtId;
+  final String courtId;
 
   const CourtDetailsScreen({super.key,required this.courtId});
 
@@ -137,6 +137,13 @@ class _CourtDetailsScreenState extends State<CourtDetailsScreen> {
                       ],
                     ),
                     SizedBox(height: 5.h),
+                    IconTextWidget(
+                      icon: image.court,
+                      iconSize: 30.w,
+                      text: model.mainCourt!.name!,
+                      textStyle: AppTheme.bodyLarge,
+                    ),
+                    SizedBox(height: 5.h),
                     Row(
                       children: [
                         Expanded(
@@ -148,7 +155,7 @@ class _CourtDetailsScreenState extends State<CourtDetailsScreen> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                SvgPicture.asset(location,color: AppColors.mediumGrayColor,width: 24.w),
+                                SvgPicture.asset(image.location,color: AppColors.mediumGrayColor,width: 24.w),
                                 Text(AppLocalization.of(context).translate("view_map"),
                                     style: AppTheme.titleMedium.copyWith(color: AppColors.mediumGrayColor)
                                 ),
@@ -229,7 +236,7 @@ class _CourtDetailsScreenState extends State<CourtDetailsScreen> {
                         Expanded(
                           flex: 1,
                           child: IconTextWidget(
-                              icon: time,
+                              icon: image.time,
                               iconSize: 20.w,
                               iconColor: AppColors.gray3Color,
                               text: model.sessionDuration!.toString() + AppLocalization.of(context).translate("minute"),

@@ -64,6 +64,8 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    // AppStorage.removeData(key: kAccessToken);
+    // AppStorage.removeData(key: userID);
     firebaseApi.init();
     AppStorage.loadLanguage().then((languageCode) {
       setState(() {

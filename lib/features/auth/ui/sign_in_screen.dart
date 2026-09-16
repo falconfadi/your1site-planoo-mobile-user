@@ -5,10 +5,11 @@ import 'package:centro/core/classes/firebase_api.dart';
 import 'package:centro/core/constants/app_images.dart';
 import 'package:centro/core/constants/end_point.dart';
 import 'package:centro/core/ui/dialogs/dialogs.dart';
+import 'package:centro/core/ui/shared_widgets/custom_country_code_picker_widget.dart';
 import 'package:centro/core/utils/Navigation/Navigation.dart';
 import 'package:centro/core/utils/responsive/responsive.dart';
-import 'package:centro/core/utils/validators/phone_number_validation.dart';
 import 'package:centro/features/auth/data/auth_repository/auth_repository.dart';
+import 'package:centro/features/auth/data/model/country_code_model.dart';
 import 'package:centro/features/auth/data/model/remember_me_model.dart';
 import 'package:centro/features/auth/data/model/sign_in_model.dart';
 import 'package:centro/features/auth/data/usecase/sign_in_usecase.dart';
@@ -17,6 +18,7 @@ import 'package:centro/features/auth/ui/verification_code_screen.dart';
 import 'package:centro/features/auth/widget/footer_widget.dart';
 import 'package:centro/features/auth/widget/forget_password_sheet.dart';
 import 'package:centro/features/nav_bar/ui/nav_bar_screen.dart';
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:centro/core/constants/app_colors.dart';
 import 'package:centro/core/constants/app_styles.dart';
@@ -31,6 +33,7 @@ import 'package:centro/core/utils/validators/password_validator.dart';
 import 'package:centro/core/utils/validators/required_validator.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:phone_numbers_parser/phone_numbers_parser.dart';
 
 class SignInScreen extends StatefulWidget {
 
@@ -43,11 +46,15 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen>  with FormStateMinxin {
 
   bool rememberMe = false;
+  String countryDialCode = "+963";
+  String selectedIsoCode = "SY";
+  bool isCountryCodeStored = false;
 
   @override
   void initState() {
     super.initState();
     loadRememberMe();
+    loadCountryCode();
   }
 
   void loadRememberMe() {
@@ -66,6 +73,24 @@ class _SignInScreenState extends State<SignInScreen>  with FormStateMinxin {
       setState(() {});
     }
   }
+
+  void loadCountryCode() {
+    String? data = AppStorage.getData(key: countryCodeKey);
+
+    if (data != null) {
+      final countryModel = CountryCodeModel.fromJson(jsonDecode(data));
+      countryDialCode = countryModel.dialCode;
+      selectedIsoCode = countryModel.isoCode;
+      isCountryCodeStored = true;
+    } else {
+      isCountryCodeStored = false;
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   Future<void> saveLoginTokens(String token) async {
     Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
     int expirationTimestamp = decodedToken['exp'];
@@ -94,22 +119,59 @@ class _SignInScreenState extends State<SignInScreen>  with FormStateMinxin {
                 Text(AppLocalization.of(context).translate("sign_in").toUpperCase(),
                     style: AppTheme.headlineSmall.copyWith(fontSize: 26.sp)),
                 SizedBox(height: 40.h),
-                CustomTextField(
-                  autoFocus: false,
-                  autoValidateMode: AutovalidateMode.onUserInteraction,
-                  keyboardType: TextInputType.phone,
-                  prefixIcon: Icons.phone_android_outlined,
-                  validator: (value) {
-                    return BaseValidator.validateValue(
-                      context,
-                      value!,
-                      [RequiredValidator(),PhoneNumberValidator(value: value)],
-                    );
-                  },
-                  focusNode: form.nodes[0],
-                  nextFocusNode: form.nodes[1],
-                  textEditingController: form.controllers[0],
-                  labelText: AppLocalization.of(context).translate("phone"),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: isTablet ? 15.h : 5.h),
+                      child: CustomCountryCodePickerWidget(
+                        enabled: !isCountryCodeStored,
+                        initialSelection: countryDialCode,
+                        onChanged: (CountryCode countryCode) {
+                          setState(() {
+                            countryDialCode = countryCode.dialCode ?? "+963";
+                            selectedIsoCode = countryCode.code ?? "SY";
+                          });
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: CustomTextField(
+                        autoFocus: false,
+                        autoValidateMode: AutovalidateMode.onUserInteraction,
+                        keyboardType: TextInputType.phone,
+                        validator: (value) {
+                          final baseError = BaseValidator.validateValue(
+                            context,
+                            value ?? '',
+                            [RequiredValidator()],
+                          );
+                          if (baseError != null) return baseError;
+                          try {
+                            final targetIso = IsoCode.values.firstWhere(
+                                  (element) => element.name == selectedIsoCode.toUpperCase(),
+                              orElse: () => IsoCode.IQ,
+                            );
+                            final parsedPhone = PhoneNumber.parse(
+                              value!.trim(),
+                              callerCountry: targetIso,
+                            );
+
+                            if (!parsedPhone.isValid()) {
+                              return AppLocalization.of(context).translate("invalid_country_phone");
+                            }
+                          } catch (e) {
+                            return AppLocalization.of(context).translate("invalid_phone_format");
+                          }
+                          return null;
+                        },
+                        focusNode: form.nodes[0],
+                        nextFocusNode: form.nodes[1],
+                        textEditingController: form.controllers[0],
+                        labelText: AppLocalization.of(context).translate("phone"),
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 20.h),
                 CustomTextField(
@@ -169,7 +231,11 @@ class _SignInScreenState extends State<SignInScreen>  with FormStateMinxin {
                             ),
                             padding: 30.w,
                             context: context,
-                            child: ForgetPasswordSheet()
+                            child: ForgetPasswordSheet(
+                              countryDialCode: countryDialCode,
+                              selectedIsoCode: selectedIsoCode,
+                              isCountryCodeStored: isCountryCodeStored,
+                            )
                         );
                       },
                       child: Text(AppLocalization.of(context).translate("forget_password") +
@@ -183,6 +249,19 @@ class _SignInScreenState extends State<SignInScreen>  with FormStateMinxin {
                 CreateModel(
                   withValidation: true,
                   onSuccess: (SignInModel model) async {
+                    if (rememberMe) {
+                      await AppStorage.saveData(
+                        key: rememberMeKey,
+                        value: jsonEncode(RememberMeModel(
+                          phone: form.controllers[0].text,
+                          password: form.controllers[1].text,
+                          rememberMe: rememberMe,
+                        ).toJson(),
+                        ),
+                      );
+                    } else {
+                      await AppStorage.removeData(key: rememberMeKey);
+                    }
                     await saveLoginTokens(model.token!);
                     AppStorage.saveData(key: userID, value: model.customer!.id);
                     Navigation.pushAndRemoveUntil(NavBarScreen(pageIndex: 0));
@@ -192,16 +271,17 @@ class _SignInScreenState extends State<SignInScreen>  with FormStateMinxin {
                   },
                   onError: (String errorMessage) {
                     if (errorMessage.toLowerCase().contains("unverified account")) {
-                      Navigation.push(VerificationCodeScreen(phoneNumber: form.controllers[0].text,fromSingUp: false));
+                      Navigation.push(VerificationCodeScreen(countryDialCode: countryDialCode,selectedIsoCode: selectedIsoCode,phoneNumber: form.controllers[0].text,fromSingUp: false));
                     } else {
                       Dialogs.showQuestion(context, title: errorMessage);
                     }
                   },
                   useCaseCallBack: (model) => SignInUseCase(AuthRepository()).call(
                       params: SignInParams(
-                        phone: form.controllers[0].text,
-                        password: form.controllers[1].text,
-                        firebaseToken: FirebaseApi.deviceToken.toString()
+                          phone: form.controllers[0].text,
+                          countryCode: countryDialCode,
+                          password: form.controllers[1].text,
+                          firebaseToken: FirebaseApi.deviceToken.toString()
                       )),
                   child: CustomButton(
                     backgroundColor: AppColors.primaryColor,

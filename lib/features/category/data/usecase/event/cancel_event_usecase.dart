@@ -5,7 +5,7 @@ import '../../../../../../core/usecase/usecase.dart';
 
 class CancelEventParams extends BaseParams {
 
-  final int eventId;
+  final String eventId;
 
   CancelEventParams({required this.eventId});
 

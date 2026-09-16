@@ -5,11 +5,12 @@ import '../auth_repository/auth_repository.dart';
 
 class RegisterParams extends BaseParams {
 
-  final String? name,phone,email,gender,birthdate,password,confirmationPassword,firebaseToken;
+  final String? name,phone,countryCode,email,gender,birthdate,password,confirmationPassword,firebaseToken;
 
   RegisterParams({
     this.name,
     this.phone,
+    this.countryCode,
     this.email,
     this.gender,
     this.birthdate,
@@ -22,6 +23,7 @@ class RegisterParams extends BaseParams {
     return {
       "name": name,
       "phone": phone,
+      "country_code": countryCode,
       "email": email,
       "gender": gender,
       "birthdate": birthdate,

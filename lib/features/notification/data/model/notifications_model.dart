@@ -87,9 +87,9 @@ class NotificationInfoModel extends BaseModel {
 class Payload {
   int? type;
   int? code;
-  int? appointment;
-  int? course;
-  int? event;
+  String? appointment;
+  String? course;
+  String? event;
   Result? result;
 
   Payload({
