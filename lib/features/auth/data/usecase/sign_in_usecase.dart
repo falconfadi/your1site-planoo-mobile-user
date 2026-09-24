@@ -1,3 +1,4 @@
+import 'package:centro/core/utils/project_utils/phone_utils.dart';
 import 'package:centro/features/auth/data/auth_repository/auth_repository.dart';
 import 'package:centro/features/auth/data/model/sign_in_model.dart';
 import '../../../../core/params/base_params.dart';
@@ -12,7 +13,7 @@ class SignInParams extends BaseParams {
 
   Map<String, String?> toJson() {
     return {
-      "phone": phone,
+      "phone": toNationalPhoneNumber(phone),
       "country_code": countryCode,
       "password": password,
       "firebase_token": firebaseToken
