@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 import '../constants/end_point.dart';
 import '../errors/bad_request_error.dart';
@@ -43,17 +42,17 @@ class ApiProvider {
 
   static Dio _createDio() {
     final dio = Dio(options);
-    dio.interceptors.add(
-      PrettyDioLogger(
-        requestHeader: true,
-        requestBody: true,
-        responseHeader: false,
-        responseBody: true,
-        error: true,
-        compact: true,
-        maxWidth: 120,
-      ),
-    );
+    // dio.interceptors.add(
+    //   PrettyDioLogger(
+    //     requestHeader: true,
+    //     requestBody: true,
+    //     responseHeader: false,
+    //     responseBody: true,
+    //     error: true,
+    //     compact: true,
+    //     maxWidth: 120,
+    //   ),
+    // );
 
     return dio;
   }
@@ -114,7 +113,7 @@ class ApiProvider {
           );
         }
       }
-      return Left(CustomError(errorMessage: _extractErrorMessage(decodedJson)));
+      return Left(_errorFromResponse(response, decodedJson));
     } on DioError catch (e) {
       return Left(handleDioError(e));
     } on SocketException {
@@ -132,9 +131,6 @@ class ApiProvider {
     required String strString,
   }) async {
     try {
-      debugPrint('[${method.name}: $url] data : [$data]');
-      debugPrint('queryParameters : [$queryParameters]');
-      debugPrint(jsonEncode(data));
 
       final response = await _sendRequest(
         method,
@@ -154,7 +150,7 @@ class ApiProvider {
           );
         }
       }
-      return Left(CustomError(errorMessage: _extractErrorMessage(decodedJson)));
+      return Left(_errorFromResponse(response, decodedJson));
     } on DioException catch (e) {
       return Left(handleDioError(e));
     } on SocketException {
@@ -171,9 +167,6 @@ class ApiProvider {
     CancelToken? cancelToken,
   }) async {
     try {
-      debugPrint('[${method.name}: $url] data : [$data]');
-      debugPrint('queryParameters : [$queryParameters]');
-      debugPrint(jsonEncode(data));
 
       final response = await _sendRequest(
         method,
@@ -192,7 +185,7 @@ class ApiProvider {
         }
       }
 
-      return Left(CustomError(errorMessage: _extractErrorMessage(decodedJson)));
+      return Left(_errorFromResponse(response, decodedJson));
     } on DioError catch (e) {
       return Left(handleDioError(e));
     } on SocketException {
@@ -305,6 +298,15 @@ class ApiProvider {
     }
 
     return const HttpError(message: 'An unknown error occurred');
+  }
+
+  static BaseError _errorFromResponse(
+    Response response,
+    Map<String, dynamic> decodedJson,
+  ) {
+    final message = _extractErrorMessage(decodedJson);
+    if (response.statusCode == 401) return UnauthorizedError(message: message);
+    return CustomError(errorMessage: message);
   }
 
   static String _extractErrorMessage(Map<String, dynamic> decodedJson) {

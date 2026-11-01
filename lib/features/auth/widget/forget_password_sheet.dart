@@ -23,12 +23,10 @@ class ForgetPasswordSheet extends StatefulWidget {
 
   final String countryDialCode;
   final String selectedIsoCode;
-  final bool isCountryCodeStored;
 
   const ForgetPasswordSheet({super.key,
     required this.countryDialCode,
     required this.selectedIsoCode,
-    required this.isCountryCodeStored,
   });
 
   @override
@@ -63,8 +61,8 @@ class _ForgetPasswordSheetState extends State<ForgetPasswordSheet>  with FormSta
                 Padding(
                   padding: EdgeInsets.only(top: isTablet ? 15.h : 5.h),
                   child: CustomCountryCodePickerWidget(
-                    enabled: !widget.isCountryCodeStored,
-                    initialSelection: widget.countryDialCode,
+                    enabled: true,
+                    initialSelection: localCountryDialCode,
                     onChanged: (CountryCode countryCode) {
                       setState(() {
                         localCountryDialCode = countryCode.dialCode ?? "+963";
@@ -87,7 +85,7 @@ class _ForgetPasswordSheetState extends State<ForgetPasswordSheet>  with FormSta
                       if (baseError != null) return baseError;
                       try {
                         final targetIso = IsoCode.values.firstWhere(
-                              (element) => element.name == widget.selectedIsoCode.toUpperCase(),
+                              (element) => element.name == localSelectedIsoCode.toUpperCase(),
                           orElse: () => IsoCode.IQ,
                         );
                         final parsedPhone = PhoneNumber.parse(
@@ -115,7 +113,7 @@ class _ForgetPasswordSheetState extends State<ForgetPasswordSheet>  with FormSta
                 onSuccess: (model) async {
                   Navigation.popThenPush(ResetPasswordScreen(
                     phone: form.controllers[0].text,
-                    countryDialCode: widget.countryDialCode,
+                    countryDialCode: localCountryDialCode,
                   ));
                   },
                 withValidation: true,
@@ -126,7 +124,7 @@ class _ForgetPasswordSheetState extends State<ForgetPasswordSheet>  with FormSta
                   return ForgetPasswordUseCase(AuthRepository()).call(
                       params: ForgetPasswordParams(
                           phone: form.controllers[0].text,
-                          countryCode: widget.countryDialCode,
+                          countryCode: localCountryDialCode,
                           firebaseToken: FirebaseApi.deviceToken.toString()
                       ));
                 },

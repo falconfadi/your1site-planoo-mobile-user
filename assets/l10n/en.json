@@ -116,7 +116,7 @@
   "court": "Court",
   "course": "Course",
   "event": "Event",
-  "about_planoo": "PLANOO is a smart digital platform designed to simplify how people discover, book, and manage activities and services.\nWe connect users with trusted partners through an easy-to-use system that saves time, improves organization, and delivers a smooth booking experience for everyone.",
+  "about_planoo": "PLANOO\n\nDiscover More. Book Easily. Experience More.\n\nPLANOO is your all-in-one platform for discovering, booking, and enjoying sports, fitness, music, and entertainment activities — all in one place.\n\nWhether you’re looking for a football field, basketball court, fitness class, personal trainer, music lesson, or an exciting event, PLANOO makes it easy to find what you love and book it in just a few taps.\n\nWhat Can You Do with PLANOO?\n\n• Discover Activities: Explore sports facilities, fitness centers, academies, music classes, and entertainment experiences near you.\n• Book with Ease: Find available sessions, choose your preferred time, and make reservations quickly.\n• Find Coaches & Trainers: Connect with professional coaches, personal trainers, and instructors for individual or group sessions.\n• Explore Events: Discover tournaments, competitions, workshops, and entertainment events.\n• Compare Your Options: Browse locations, facilities, photos, schedules, and prices before booking.\n• Manage Your Bookings: Keep track of your upcoming activities and reservations in one place.\n• Try Something New: Discover new hobbies, learn new skills, and enjoy experiences that match your interests.\n\nWhy Choose PLANOO?\n\nLess searching. More playing. More experiences.\n\nPLANOO connects you with activities, places, and experiences that fit your lifestyle, making it easier to stay active, explore your interests, and make the most of your free time.\n\nOne App. Endless Activities. More Experiences.\n\nDiscover it. Book it. Enjoy it.\n\nYour Next Experience Starts with PLANOO.",
   "?": "?",
   "logout_clear_token_warning": "This option is only used when switching to another device.\nAfter deleting the authentication code, you will no longer receive notifications on that device.\nThis option is risky, so please use it with caution.",
   "your_appointments": "Your appointments",
@@ -127,5 +127,12 @@
   "workdays": "Workdays",
   "remaining_sessions": "Remaining sessions",
   "your_info": "Your information",
-  "invalid_country_phone": "The phone number is invalid for the selected country"
+  "invalid_country_phone": "The phone number is invalid for the selected country",
+  "monday": "Monday",
+  "tuesday": "Tuesday",
+  "wednesday": "Wednesday",
+  "thursday": "Thursday",
+  "friday": "Friday",
+  "saturday": "Saturday",
+  "sunday": "Sunday"
 }

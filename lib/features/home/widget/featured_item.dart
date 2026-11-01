@@ -113,7 +113,7 @@ class _FeaturedItemState extends State<FeaturedItem> {
                               SizedBox(width: 5.w),
                               Expanded(
                                 child: Text(
-                                  "${data.rate.toString()} (${truncateNumber(data.reviewsList!.length,maxLength: 10)} ${AppLocalization.of(context).translate("reviews")})",
+                                  "${data.rate.toString()} (${truncateNumber(data.reviewsList?.length ?? 0,maxLength: 10)} ${AppLocalization.of(context).translate("reviews")})",
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: AppTheme.labelLarge.copyWith(

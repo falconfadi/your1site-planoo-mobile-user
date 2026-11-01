@@ -1,4 +1,3 @@
-
 class LocationModel {
   int? id;
   double? long;
@@ -6,18 +5,12 @@ class LocationModel {
   String? name;
   String? createdAt;
 
-  LocationModel({
-    this.id,
-    this.long,
-    this.lat,
-    this.name,
-    this.createdAt,
-  });
+  LocationModel({this.id, this.long, this.lat, this.name, this.createdAt});
 
   LocationModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    long = json['long'];
-    lat = json['lat'];
+    long = (json['long'] as num?)?.toDouble();
+    lat = (json['lat'] as num?)?.toDouble();
     name = json['name'];
     createdAt = json['created_at'];
   }

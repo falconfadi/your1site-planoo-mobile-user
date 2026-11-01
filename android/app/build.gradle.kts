@@ -15,6 +15,10 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
+    lint {
+        checkReleaseBuilds = false
+    }
+
     namespace = "com.your1site.planoo"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion

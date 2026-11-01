@@ -125,7 +125,7 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Flexible(child: Text(widget.course!.workdaysList![index].day!,style: AppTheme.titleLarge)),
+                          Flexible(child: Text(AppLocalization.of(context).translate(widget.course!.workdaysList![index].day!.toLowerCase()),style: AppTheme.titleLarge)),
                           Flexible(child: Text("${widget.course!.workdaysList![index].start} - ${widget.course!.workdaysList![index].end}",style: AppTheme.labelLarge.copyWith(color: AppColors.mediumGrayColor))),
                         ],
                       ),
@@ -153,7 +153,7 @@ class _ConfirmBookingScreenState extends State<ConfirmBookingScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Flexible(child: Text(widget.event!.workdaysList![index].day!,style: AppTheme.titleLarge)),
+                              Flexible(child: Text(AppLocalization.of(context).translate(widget.event!.workdaysList![index].day!.toLowerCase()),style: AppTheme.titleLarge)),
                               Flexible(child: Text("${widget.event!.workdaysList![index].start} - ${widget.event!.workdaysList![index].end}",style: AppTheme.labelLarge.copyWith(color: AppColors.mediumGrayColor))),
                             ],
                           ),

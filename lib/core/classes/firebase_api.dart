@@ -1,7 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+
+import 'package:centro/core/classes/app_storage.dart';
+import 'package:centro/core/constants/end_point.dart';
 import 'package:centro/core/utils/navigation/Navigation.dart';
+import 'package:centro/features/auth/data/auth_repository/auth_repository.dart';
+import 'package:centro/features/auth/data/usecase/update_firebase_token_usecase.dart';
 import 'package:centro/features/appointment/ui/course_appointment_details_screen.dart';
 import 'package:centro/features/appointment/ui/court_appointment_details_screen.dart';
 import 'package:centro/features/appointment/ui/event_appointment_details_screen.dart';
@@ -14,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class FirebaseApi {
-
   FirebaseApi._();
   static final FirebaseApi instance = FirebaseApi._();
 
@@ -25,17 +29,20 @@ class FirebaseApi {
 
   final ValueNotifier<bool> hasNewNotificationsNotifier = ValueNotifier(false);
   final _firebaseMessaging = FirebaseMessaging.instance;
-  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
 
   Future<void> init() async {
     await requestNotificationPermission();
     await _initLocalNotifications();
-    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
     await getDeviceToken();
+    syncDeviceToken();
     listenToTokenRefresh();
     _listenToMessages();
   }
@@ -78,15 +85,31 @@ class FirebaseApi {
     _firebaseMessaging.onTokenRefresh.listen((token) {
       deviceToken = token;
       debugPrint('🔄 Token refreshed: $token');
+      syncDeviceToken();
     });
   }
 
+  Future<void> syncDeviceToken() async {
+    final token = deviceToken;
+    if (token == null || AppStorage.getData(key: kAccessToken) == null) return;
+    if (AppStorage.getData(key: kSyncedFirebaseToken) == token) return;
+
+    final result = await UpdateFirebaseTokenUseCase(AuthRepository()).call(
+      params: UpdateFirebaseTokenParams(firebaseToken: token),
+    );
+    if (result.hasDataOnly) {
+      await AppStorage.saveData(key: kSyncedFirebaseToken, value: token);
+    }
+  }
+
   Future<void> refreshNotificationsStatus() async {
-    final result = await CheckNewNotificationsUseCase(NotificationRepository())
-        .call(params: CheckNewNotificationsParams());
+    final result = await CheckNewNotificationsUseCase(
+      NotificationRepository(),
+    ).call(params: CheckNewNotificationsParams());
 
     if (result.hasDataOnly) {
-      hasNewNotificationsNotifier.value = result.data?.newNotifications ?? false;
+      hasNewNotificationsNotifier.value =
+          result.data?.newNotifications ?? false;
       print(hasNewNotificationsNotifier.value);
     }
   }
@@ -94,6 +117,8 @@ class FirebaseApi {
   void _listenToMessages() {
     /// Foreground
     FirebaseMessaging.onMessage.listen((message) {
+      debugPrint("Hayan");
+      debugPrint('FCM: ${message.toMap()}');
       _showLocalNotification(message);
       hasNewNotificationsNotifier.value = true;
       onNotificationChange?.call();
@@ -116,7 +141,9 @@ class FirebaseApi {
   }
 
   Future<void> _initLocalNotifications() async {
-    const android = AndroidInitializationSettings('@drawable/notification_icon');
+    const android = AndroidInitializationSettings(
+      '@drawable/notification_icon',
+    );
 
     const ios = DarwinInitializationSettings(
       requestAlertPermission: true,
@@ -124,10 +151,7 @@ class FirebaseApi {
       requestSoundPermission: true,
     );
 
-    const settings = InitializationSettings(
-      android: android,
-      iOS: ios,
-    );
+    const settings = InitializationSettings(android: android, iOS: ios);
 
     await _localNotifications.initialize(
       settings: settings,
@@ -143,7 +167,8 @@ class FirebaseApi {
 
       await _localNotifications
           .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
+            AndroidFlutterLocalNotificationsPlugin
+          >()
           ?.createNotificationChannel(channel);
     }
   }
@@ -158,10 +183,7 @@ class FirebaseApi {
 
     const ios = DarwinNotificationDetails();
 
-    const details = NotificationDetails(
-      android: android,
-      iOS: ios,
-    );
+    const details = NotificationDetails(android: android, iOS: ios);
 
     await _localNotifications.show(
       id: Random().nextInt(100000),
@@ -200,15 +222,11 @@ class FirebaseApi {
         break;
 
       case 3:
-        target = CourseAppointmentDetailsScreen(
-          courseId: data['course'],
-        );
+        target = CourseAppointmentDetailsScreen(courseId: data['course']);
         break;
 
       case 4:
-        target = EventAppointmentDetailsScreen(
-          eventId: data['event'],
-        );
+        target = EventAppointmentDetailsScreen(eventId: data['event']);
         break;
       case 5:
         target = CourtAppointmentDetailsScreen(
@@ -230,4 +248,3 @@ class FirebaseApi {
     }
   }
 }
-

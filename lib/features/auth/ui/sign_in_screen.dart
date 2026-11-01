@@ -48,7 +48,6 @@ class _SignInScreenState extends State<SignInScreen>  with FormStateMinxin {
   bool rememberMe = false;
   String countryDialCode = "+963";
   String selectedIsoCode = "SY";
-  bool isCountryCodeStored = false;
 
   @override
   void initState() {
@@ -81,9 +80,6 @@ class _SignInScreenState extends State<SignInScreen>  with FormStateMinxin {
       final countryModel = CountryCodeModel.fromJson(jsonDecode(data));
       countryDialCode = countryModel.dialCode;
       selectedIsoCode = countryModel.isoCode;
-      isCountryCodeStored = true;
-    } else {
-      isCountryCodeStored = false;
     }
 
     if (mounted) {
@@ -125,7 +121,7 @@ class _SignInScreenState extends State<SignInScreen>  with FormStateMinxin {
                     Padding(
                       padding: EdgeInsets.only(top: isTablet ? 15.h : 5.h),
                       child: CustomCountryCodePickerWidget(
-                        enabled: !isCountryCodeStored,
+                        enabled: true,
                         initialSelection: countryDialCode,
                         onChanged: (CountryCode countryCode) {
                           setState(() {
@@ -234,7 +230,6 @@ class _SignInScreenState extends State<SignInScreen>  with FormStateMinxin {
                             child: ForgetPasswordSheet(
                               countryDialCode: countryDialCode,
                               selectedIsoCode: selectedIsoCode,
-                              isCountryCodeStored: isCountryCodeStored,
                             )
                         );
                       },
@@ -264,6 +259,7 @@ class _SignInScreenState extends State<SignInScreen>  with FormStateMinxin {
                     }
                     await saveLoginTokens(model.token!);
                     AppStorage.saveData(key: userID, value: model.customer!.id);
+                    FirebaseApi.instance.syncDeviceToken();
                     Navigation.pushAndRemoveUntil(NavBarScreen(pageIndex: 0));
                   },
                   onTap: () {

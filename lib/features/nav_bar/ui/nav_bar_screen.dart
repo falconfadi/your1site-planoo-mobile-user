@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:centro/core/classes/firebase_api.dart';
 import 'package:centro/core/constants/app_colors.dart';
 import 'package:centro/core/utils/responsive/responsive.dart';
@@ -5,6 +6,7 @@ import 'package:centro/features/appointment/ui/appointments_screen.dart';
 import 'package:centro/features/category/ui/category_screen.dart';
 import 'package:centro/features/home/ui/home_screen.dart';
 import 'package:centro/features/profile/ui/profile_screen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -48,30 +50,37 @@ class _NavBarScreenState extends State<NavBarScreen> {
 
   List<PersistentBottomNavBarItem> _navBarsItems() => [
     PersistentBottomNavBarItem(
-        icon: SvgPicture.asset(home,width: 24.w,color: AppColors.primaryColor),
-        inactiveIcon: SvgPicture.asset(home,width: 24.w,color: AppColors.mediumGrayColor),
+        icon: navIcon(svg: home, iosIcon: CupertinoIcons.house_fill, active: true),
+        inactiveIcon: navIcon(svg: home, iosIcon: CupertinoIcons.house, active: false),
         title: "Home",
         activeColorPrimary: AppColors.primaryColor
     ),
     PersistentBottomNavBarItem(
-        icon: SvgPicture.asset(category,width: 30.w,color: AppColors.primaryColor),
-        inactiveIcon: SvgPicture.asset(category,width: 30.w,color: AppColors.mediumGrayColor),
+        icon: navIcon(svg: category, iosIcon: CupertinoIcons.square_grid_2x2_fill, active: true, width: 30.w),
+        inactiveIcon: navIcon(svg: category, iosIcon: CupertinoIcons.square_grid_2x2, active: false, width: 30.w),
         title: "Category",
         activeColorPrimary: AppColors.primaryColor
     ),
     PersistentBottomNavBarItem(
-        icon: SvgPicture.asset(appointment,width: 24.w,color: AppColors.primaryColor),
-        inactiveIcon: SvgPicture.asset(appointment,width: 24.w,color: AppColors.mediumGrayColor),
+        icon: navIcon(svg: appointment, iosIcon: CupertinoIcons.calendar, active: true),
+        inactiveIcon: navIcon(svg: appointment, iosIcon: CupertinoIcons.calendar, active: false),
         title: "Appointment",
         activeColorPrimary: AppColors.primaryColor
     ),
     PersistentBottomNavBarItem(
-        icon: SvgPicture.asset(user,width: 24.w,color: AppColors.primaryColor),
-        inactiveIcon: SvgPicture.asset(user,width: 24.w,color: AppColors.mediumGrayColor),
+        icon: navIcon(svg: user, iosIcon: CupertinoIcons.person_fill, active: true),
+        inactiveIcon: navIcon(svg: user, iosIcon: CupertinoIcons.person, active: false),
         title: "Profile",
         activeColorPrimary: AppColors.primaryColor
     ),
   ];
+
+  // iOS uses Cupertino icons; other platforms keep the SVG assets.
+  Widget navIcon({required String svg, required IconData iosIcon, required bool active, double? width}) {
+    final color = active ? AppColors.primaryColor : AppColors.mediumGrayColor;
+    if (Platform.isIOS) return Icon(iosIcon, size: 24.w, color: color);
+    return SvgPicture.asset(svg, width: width ?? 24.w, color: color);
+  }
 
   @override
   Widget build(BuildContext context) {
